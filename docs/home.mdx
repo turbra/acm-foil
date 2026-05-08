@@ -8,10 +8,10 @@ description: Deliver ACM-managed security policies to selected OpenShift cluster
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import Link from '@docusaurus/Link';
-import logoUrl from '@site/static/img/logo.svg';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <div className="acmfoil-hero">
-  <img className="acmfoil-hero__logo" src={logoUrl} alt="ACM Foil" />
+  <img className="acmfoil-hero__logo" src={useBaseUrl('/img/tux-foil.png')} alt="ACM Foil" />
   <p className="acmfoil-hero__lead">
     ACM Foil is a small GitOps policy repository for proving ACM-delivered security controls.
     OpenShift GitOps syncs policy definitions to the ACM hub, and ACM Governance applies those policies to managed clusters that opt in.

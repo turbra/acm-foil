@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://turbra.github.io/acm-foil/"><img src="static/img/tux-foil.png" alt="ACM Foil" width="300" /></a>
+  <a href="https://turbra.github.io/acm-foil/"><img src="static/img/tux-foil-logo.png" alt="ACM Foil" width="300" /></a>
 </p>
 
 <p align="center">
@@ -21,6 +21,8 @@
 ---
 
 ACM Foil proves ACM can place security policies on managed OpenShift clusters through GitOps. OpenShift GitOps syncs ACM policy resources to the hub, and ACM Governance applies the active PolicySets to managed clusters that opt in with `spo=true`.
+
+ACM Foil is inspired by, and built in collaboration with, the [Blastwall](https://github.com/gprocunier/blastwall.git) concept. Blastwall defines practical Security Profiles Operator policy content; ACM Foil focuses on scaling that style of policy delivery across ACM-managed fleets.
 
 ## Quick Start
 
