@@ -1,0 +1,9 @@
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: policyset-blastwall-test
+  namespace: acm-spo-policies
+spec:
+  description: Deploy Blastwall SPO SELinux profiles and workload binding resources.
+  policies:
+    - policy-blastwall-spo-profiles

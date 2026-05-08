@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: spo-acm-policies-test
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/turbra/acm-foil.git
+    targetRevision: main
+    path: policies/overlays/test-spo-cluster-scoped
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: acm-spo-policies
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
