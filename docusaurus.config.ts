@@ -89,7 +89,6 @@ const config: Config = {
             {label: 'Get started', to: '/'},
             {label: 'Deploy', to: '/getting-started/deploy/'},
             {label: 'Validate', to: '/getting-started/validate/'},
-            {label: 'Testing', to: '/project/testing/'},
           ],
         },
         {

@@ -50,12 +50,6 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: ['examples/index', 'examples/extra-spo-smoke-policy'],
     },
-    {
-      type: 'category',
-      label: 'Project',
-      collapsed: false,
-      items: ['project/testing'],
-    },
   ],
 };
 
