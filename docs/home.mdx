@@ -11,12 +11,14 @@ import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <div className="acmfoil-hero">
-  <img className="acmfoil-hero__logo" src={useBaseUrl('/img/tux-foil.png')} alt="ACM Foil" />
+  <img className="acmfoil-hero__logo" src={useBaseUrl('/img/tux-foil-logo.png')} alt="ACM Foil" />
   <p className="acmfoil-hero__lead">
     ACM Foil is a small GitOps policy repository for proving ACM-delivered security controls.
     OpenShift GitOps syncs policy definitions to the ACM hub, and ACM Governance applies those policies to managed clusters that opt in.
   </p>
 </div>
+
+ACM Foil is inspired by [Greg Procunier's (`gprocunier`)](https://github.com/gprocunier) [Blastwall project](https://github.com/gprocunier/blastwall.git). Blastwall demonstrates hardened fleet management for RHEL with IdM, with a path for bringing that same hardened disposition to OpenShift workloads. ACM Foil extends that model into ACM-driven OpenShift fleet management.
 
 ## Quick Start
 

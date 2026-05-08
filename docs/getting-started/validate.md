@@ -110,4 +110,4 @@ RawSelinuxProfile/blastwallnested
 validation/validate-render.sh policies/overlays/test-spo-cluster-scoped
 ```
 
-See [Testing](/project/testing/) for documentation and render validation.
+Use the same render check before pushing policy changes.
