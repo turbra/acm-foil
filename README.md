@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/License-Apache--2.0-8F2D23?style=flat-square" alt="License: Apache-2.0"></a>
+  <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/License-Apache--2.0-C026D3?style=flat-square" alt="License: Apache-2.0"></a>
 </p>
 
 <p align="center">
@@ -75,12 +75,6 @@ The SPO smoke policy creates one harmless, unbound `SelinuxProfile` so you can p
 | `examples/` | Optional policies that are not deployed by default |
 | `validation/` | Local render and ACM placement checks |
 | `docs/` | Docusaurus documentation site |
-
-## Validate the Render
-
-```sh
-validation/validate-render.sh policies/overlays/test-spo-cluster-scoped
-```
 
 ## License
 
