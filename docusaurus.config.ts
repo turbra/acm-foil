@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'ACM Foil',
   tagline: 'GitOps policy enforcement for clusters putting on the foil.',
-  favicon: 'img/favicon.svg',
+  favicon: 'img/tux-foil-favicon.png',
 
   url: 'https://turbra.github.io',
   baseUrl: '/acm-foil/',
@@ -45,12 +45,12 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/acm-foil-social.svg',
+    image: 'img/tux-foil-social.png',
     navbar: {
       title: 'ACM Foil',
       logo: {
         alt: 'ACM Foil',
-        src: 'img/logo.svg',
+        src: 'img/tux-foil-navbar.png',
       },
       items: [
         {
