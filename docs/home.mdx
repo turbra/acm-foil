@@ -1,0 +1,83 @@
+---
+id: home
+slug: /
+title: ACM Foil
+description: Deliver ACM-managed security policies to selected OpenShift clusters.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Link from '@docusaurus/Link';
+import logoUrl from '@site/static/img/logo.svg';
+
+<div className="acmfoil-hero">
+  <img className="acmfoil-hero__logo" src={logoUrl} alt="ACM Foil" />
+  <p className="acmfoil-hero__lead">
+    ACM Foil is a small GitOps policy repository for proving ACM-delivered security controls.
+    OpenShift GitOps syncs policy definitions to the ACM hub, and ACM Governance applies those policies to managed clusters that opt in.
+  </p>
+</div>
+
+## Quick Start
+
+<Tabs>
+  <TabItem value="deploy" label="Deploy" default>
+
+```bash
+oc apply -f apps/hub/argocd-application.yaml
+```
+
+  </TabItem>
+  <TabItem value="target" label="Target a cluster">
+
+```bash
+oc label managedcluster <cluster-name> spo=true --overwrite
+```
+
+  </TabItem>
+  <TabItem value="validate" label="Validate">
+
+```bash
+oc get applications.argoproj.io -n openshift-gitops spo-acm-policies-test
+oc get policy,policyset,placement,placementbinding -n acm-spo-policies
+```
+
+  </TabItem>
+</Tabs>
+
+## Current Policy Flow
+
+```text
+GitHub repository
+  -> OpenShift GitOps on the ACM hub
+  -> ACM policy namespace
+  -> PolicySet and Placement
+  -> managed clusters labeled spo=true
+  -> security policy resources
+```
+
+## What It Deploys
+
+| PolicySet | Purpose |
+| --- | --- |
+| `policyset-blastwall-test` | Deploys Blastwall Security Profiles Operator resources and validation objects. |
+| `policyset-spo-test` | Deploys a Red Hat CVE mitigation policy and a harmless SPO smoke profile. |
+
+ACM Foil does not install the Security Profiles Operator. Target clusters must already have SPO installed when SPO-specific policies are enabled.
+
+## Explore
+
+<div className="acmfoil-link-grid">
+  <Link className="acmfoil-link-card" to="/getting-started/deploy/">
+    <strong>Deploy</strong>
+    <span>Apply the Argo CD Application and understand the hub resources it syncs.</span>
+  </Link>
+  <Link className="acmfoil-link-card" to="/concepts/policy-flow/">
+    <strong>Concepts</strong>
+    <span>Learn how GitOps sync, ACM placement, PolicySets, and managed-cluster policy replication fit together.</span>
+  </Link>
+  <Link className="acmfoil-link-card" to="/reference/policies/">
+    <strong>Reference</strong>
+    <span>Review each active policy, its resources, remediation behavior, and validation commands.</span>
+  </Link>
+</div>

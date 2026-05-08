@@ -1,0 +1,160 @@
+:root {
+  --ifm-color-primary: #8f2d23;
+  --ifm-color-primary-dark: #802820;
+  --ifm-color-primary-darker: #79261e;
+  --ifm-color-primary-darkest: #631f19;
+  --ifm-color-primary-light: #9e3227;
+  --ifm-color-primary-lighter: #a63529;
+  --ifm-color-primary-lightest: #bd3c2f;
+  --ifm-background-color: #fbfcfd;
+  --ifm-font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ifm-font-family-monospace: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --ifm-code-font-size: 0.92rem;
+  --ifm-pre-border-radius: 8px;
+  --ifm-navbar-shadow: 0 1px 0 rgba(23, 23, 23, 0.08);
+  --ifm-toc-border-color: #e5e7eb;
+  --doc-sidebar-width: 294px;
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #e25545;
+  --ifm-color-primary-dark: #de3f2d;
+  --ifm-color-primary-darker: #d93624;
+  --ifm-color-primary-darkest: #b32c1e;
+  --ifm-color-primary-light: #e66b5e;
+  --ifm-color-primary-lighter: #e8786c;
+  --ifm-color-primary-lightest: #ee9b92;
+  --ifm-background-color: #111827;
+  --ifm-background-surface-color: #172033;
+  --ifm-toc-border-color: #334155;
+}
+
+.navbar {
+  border-bottom: 1px solid var(--ifm-toc-border-color);
+  box-shadow: none;
+}
+
+.navbar__logo {
+  width: 32px;
+}
+
+.navbar__logo img {
+  object-fit: contain;
+}
+
+.navbar__title {
+  font-weight: 700;
+}
+
+.theme-doc-sidebar-container {
+  border-right: 1px solid var(--ifm-toc-border-color) !important;
+}
+
+.theme-doc-sidebar-menu {
+  padding: 0.75rem;
+}
+
+.menu__link {
+  border-radius: 6px;
+  font-size: 0.94rem;
+}
+
+.menu__list-item-collapsible {
+  border-radius: 6px;
+}
+
+.table-of-contents {
+  font-size: 0.82rem;
+}
+
+.theme-doc-markdown {
+  font-size: 1rem;
+  line-height: 1.72;
+}
+
+.theme-doc-markdown h1 {
+  letter-spacing: 0;
+}
+
+.theme-doc-markdown h2 {
+  border-top: 1px solid var(--ifm-toc-border-color);
+  margin-top: 2.75rem;
+  padding-top: 1.5rem;
+}
+
+.theme-doc-markdown > h2:first-child {
+  border-top: 0;
+}
+
+.theme-doc-markdown table {
+  display: table;
+  width: 100%;
+}
+
+.theme-doc-markdown td,
+.theme-doc-markdown th {
+  vertical-align: top;
+}
+
+.theme-code-block {
+  border: 1px solid var(--ifm-toc-border-color);
+  border-radius: 8px;
+  box-shadow: none !important;
+}
+
+.acmfoil-hero {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.acmfoil-hero__logo {
+  max-width: 230px;
+  height: auto;
+}
+
+.acmfoil-hero__lead {
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1.08rem;
+  max-width: 780px;
+}
+
+.acmfoil-link-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 1.5rem 0;
+}
+
+.acmfoil-link-card {
+  border: 1px solid var(--ifm-toc-border-color);
+  border-radius: 8px;
+  color: inherit;
+  display: block;
+  padding: 1rem;
+  text-decoration: none;
+}
+
+.acmfoil-link-card:hover {
+  border-color: var(--ifm-color-primary);
+  color: inherit;
+  text-decoration: none;
+}
+
+.acmfoil-link-card strong {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.acmfoil-link-card span {
+  color: var(--ifm-color-emphasis-700);
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 996px) {
+  .acmfoil-link-grid {
+    grid-template-columns: 1fr;
+  }
+}
