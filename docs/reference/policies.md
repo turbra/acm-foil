@@ -18,12 +18,6 @@ Purpose:
 
 Deploy Blastwall SPO resources from the upstream Blastwall OpenShift SPO manifests.
 
-PolicySet:
-
-```text
-policyset-blastwall-test
-```
-
 Creates:
 
 ```text
@@ -73,12 +67,6 @@ Purpose:
 
 Deploy the Red Hat BPF LSM DaemonSet mitigation for CVE-2026-31431.
 
-PolicySet:
-
-```text
-policyset-spo-test
-```
-
 Creates:
 
 ```text
@@ -122,12 +110,6 @@ policies/base/policy-spo-selinux-smoke.yaml
 Purpose:
 
 Create a harmless SPO `SelinuxProfile` to prove ACM can deploy SPO resources to selected clusters.
-
-PolicySet:
-
-```text
-policyset-spo-test
-```
 
 Creates:
 
