@@ -20,8 +20,6 @@
 
 ---
 
-ACM Foil proves ACM can place security policies on managed OpenShift clusters through GitOps. OpenShift GitOps syncs ACM policy resources to the hub, and ACM Governance applies the active PolicySets to managed clusters that opt in with `spo=true`.
-
 ACM Foil is inspired by, and built in collaboration with, [Greg Procunier (`gprocunier`)](https://github.com/gprocunier) and his [Blastwall project](https://gprocunier.github.io/blastwall/). Blastwall demonstrates hardened fleet management for RHEL with IdM, with a path for bringing that same hardened disposition to OpenShift workloads. ACM Foil extends that model into ACM-driven OpenShift fleet management.
 
 ## Quick Start
