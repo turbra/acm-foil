@@ -6,8 +6,6 @@ description: What ACM Foil deploys and what it deliberately leaves out.
 
 # What ACM Foil Does
 
-ACM Foil is a small GitOps policy repo for proving and operating ACM-delivered security controls.
-
 It does three things:
 
 1. Selects managed clusters labeled `spo=true`.

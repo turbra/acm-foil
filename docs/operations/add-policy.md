@@ -34,6 +34,7 @@ Example:
 
 ```yaml
 resources:
+  - policy-blastwall-spo-profiles.yaml
   - policy-example.yaml
   - policy-prevent-copy-fail-cve-ds.yaml
   - policy-spo-selinux-smoke.yaml

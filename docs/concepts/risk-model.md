@@ -6,7 +6,7 @@ description: Operational risks and safety boundaries for the included policies.
 
 # Risk Model
 
-ACM Foil is a test-oriented policy delivery repository. Treat each policy according to what it creates.
+ACM Foil is a fleet policy delivery repository. Treat each policy according to what it creates.
 
 ## Low-Risk Smoke Policy
 
@@ -18,7 +18,7 @@ It is useful for proving orchestration because it does not attach the profile to
 
 `policy-blastwall-spo-profiles` creates SPO profiles plus supporting namespaces, RBAC, SCCs, and validation resources.
 
-Review the generated resources before expanding placement beyond a test cluster.
+Review the generated resources before expanding placement beyond a limited rollout.
 
 ## CVE Mitigation Policy
 

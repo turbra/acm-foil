@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ACM Foil logo">
-  <rect width="64" height="64" rx="10" fill="#171717"/>
-  <path d="M16 16h32v8H24v8h20v8H24v8h24" fill="none" stroke="#e25545" stroke-width="6" stroke-linejoin="round"/>
-  <path d="M14 48l36-32" fill="none" stroke="#f1f5f9" stroke-width="4" stroke-linecap="round"/>
-</svg>
