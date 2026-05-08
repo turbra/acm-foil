@@ -1,0 +1,14 @@
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: placement-spo-test
+  namespace: acm-spo-policies
+spec:
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+            - key: spo
+              operator: In
+              values:
+                - "true"

@@ -1,0 +1,10 @@
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: policyset-spo-test
+  namespace: acm-spo-policies
+spec:
+  description: Smoke test ACM policy orchestration for SPO policy delivery.
+  policies:
+    - policy-prevent-copy-fail-cve-ds
+    - policy-spo-selinux-smoke

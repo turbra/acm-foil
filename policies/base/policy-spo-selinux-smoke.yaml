@@ -1,0 +1,28 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-spo-selinux-smoke
+  namespace: acm-spo-policies
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: spo-selinux-smoke-profile
+        spec:
+          remediationAction: enforce
+          severity: low
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: security-profiles-operator.x-k8s.io/v1alpha2
+                kind: SelinuxProfile
+                metadata:
+                  name: acm-spo-smoke
+                spec:
+                  inherit:
+                    - kind: System
+                      name: container
