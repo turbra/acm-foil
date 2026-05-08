@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#171717"/>
+  <rect x="72" y="72" width="1056" height="486" rx="28" fill="#231f20" stroke="#e25545" stroke-width="4"/>
+  <text x="120" y="260" fill="#f8fafc" font-family="Arial, sans-serif" font-size="88" font-weight="700">ACM Foil</text>
+  <text x="120" y="350" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="38">GitOps policy enforcement for managed clusters</text>
+  <path d="M760 190h240v56H820v56h150v56H820v56h190" fill="none" stroke="#e25545" stroke-width="28" stroke-linejoin="round"/>
+  <path d="M744 430l278-254" fill="none" stroke="#f8fafc" stroke-width="18" stroke-linecap="round"/>
+</svg>
