@@ -119,6 +119,14 @@
   max-width: 780px;
 }
 
+.acmfoil-badges {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 1.75rem;
+}
+
 .acmfoil-link-grid {
   display: grid;
   gap: 1rem;
