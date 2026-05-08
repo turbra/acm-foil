@@ -81,3 +81,7 @@ The SPO smoke policy creates one harmless, unbound `SelinuxProfile` so you can p
 ```sh
 validation/validate-render.sh policies/overlays/test-spo-cluster-scoped
 ```
+
+## License
+
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
