@@ -17,6 +17,7 @@ policies/base/policyset-blastwall.yaml
 Policies:
 
 ```text
+policy-spo-rawselinuxprofile-crd
 policy-blastwall-spo-profiles
 ```
 

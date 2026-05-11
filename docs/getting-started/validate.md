@@ -30,6 +30,7 @@ oc get policy,policyset,placement,placementbinding,managedclustersetbinding \
 The active policies should be `Compliant`:
 
 ```text
+policy-spo-rawselinuxprofile-crd
 policy-blastwall-spo-profiles
 policy-prevent-copy-fail-cve-ds
 policy-spo-selinux-smoke
@@ -58,9 +59,25 @@ oc get policy -n <cluster-name>
 Check each replicated policy:
 
 ```bash
+oc get policy -n <cluster-name> acm-spo-policies.policy-spo-rawselinuxprofile-crd
 oc get policy -n <cluster-name> acm-spo-policies.policy-blastwall-spo-profiles
 oc get policy -n <cluster-name> acm-spo-policies.policy-prevent-copy-fail-cve-ds
 oc get policy -n <cluster-name> acm-spo-policies.policy-spo-selinux-smoke
+```
+
+## Prove the RawSelinuxProfile API Is Ready
+
+From the hub:
+
+```bash
+oc get policy -n <cluster-name> acm-spo-policies.policy-spo-rawselinuxprofile-crd \
+  -o jsonpath='{.status.compliant}{"\n"}'
+```
+
+Expected:
+
+```text
+Compliant
 ```
 
 ## Prove the Mitigation Policy Applied
