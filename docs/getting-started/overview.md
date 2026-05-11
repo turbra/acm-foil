@@ -18,7 +18,7 @@ The active deployment includes two policy sets.
 
 | PolicySet | Purpose |
 | --- | --- |
-| `policyset-blastwall-test` | Deploys Blastwall SPO profiles, SCCs, RBAC, namespaces, and validation ConfigMap. |
+| `policyset-blastwall-test` | Checks for the SPO `RawSelinuxProfile` CRD, then deploys Blastwall SPO profiles, SCCs, RBAC, namespaces, and validation ConfigMap. |
 | `policyset-spo-test` | Deploys the Red Hat CVE mitigation DaemonSet policy and a harmless SPO smoke profile. |
 
 ## Cluster Selection
@@ -35,6 +35,7 @@ ACM Foil applies these managed-cluster resources through ACM policies:
 
 | Policy | Managed-cluster resources |
 | --- | --- |
+| `policy-spo-rawselinuxprofile-crd` | Inform-only check for the established `RawSelinuxProfile` CRD. |
 | `policy-blastwall-spo-profiles` | Blastwall `RawSelinuxProfile` resources, SCCs, RBAC, namespaces, and validation ConfigMap. |
 | `policy-prevent-copy-fail-cve-ds` | Namespace, privileged SCC binding, and Red Hat BPF LSM mitigation DaemonSet. |
 | `policy-spo-selinux-smoke` | `SelinuxProfile/acm-spo-smoke`. |

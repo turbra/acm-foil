@@ -11,10 +11,17 @@ ACM Foil assumes the Security Profiles Operator is already installed on target c
 The repository proves ACM can deliver SPO resources by applying:
 
 ```text
+CustomResourceDefinition/rawselinuxprofiles.security-profiles-operator.x-k8s.io readiness check
 SelinuxProfile/acm-spo-smoke
 RawSelinuxProfile/blastwall
 RawSelinuxProfile/blastwallnested
 ```
+
+## CRD Precondition
+
+Blastwall uses SPO `RawSelinuxProfile` resources. ACM Foil checks that the target cluster has the `rawselinuxprofiles.security-profiles-operator.x-k8s.io` CRD and that it is `Established=True`.
+
+The precondition policy is inform-only. It does not install SPO. The Blastwall profile policy depends on that precondition before enforcement.
 
 ## Smoke Profile
 

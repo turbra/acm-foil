@@ -6,6 +6,41 @@ description: Reference for each active ACM policy.
 
 # Policies
 
+## `policy-spo-rawselinuxprofile-crd`
+
+File:
+
+```text
+policies/base/policy-spo-rawselinuxprofile-crd.yaml
+```
+
+Purpose:
+
+Check that the Security Profiles Operator `RawSelinuxProfile` CRD is established before Blastwall profile resources are enforced.
+
+Checks:
+
+```text
+CustomResourceDefinition/rawselinuxprofiles.security-profiles-operator.x-k8s.io
+status.conditions[type=Established].status=True
+```
+
+Remediation:
+
+```text
+inform
+```
+
+Validate from the hub:
+
+```bash
+oc get policy -n <cluster-name> acm-spo-policies.policy-spo-rawselinuxprofile-crd
+```
+
+Risk:
+
+This policy does not install SPO or create the CRD. It only reports whether the target cluster has the required SPO API available.
+
 ## `policy-blastwall-spo-profiles`
 
 File:
@@ -17,6 +52,12 @@ policies/base/policy-blastwall-spo-profiles.yaml
 Purpose:
 
 Deploy Blastwall SPO resources from the upstream Blastwall OpenShift SPO manifests.
+
+Dependency:
+
+```text
+policy-spo-rawselinuxprofile-crd must be Compliant
+```
 
 Creates:
 
@@ -41,6 +82,7 @@ Prerequisites:
 
 ```text
 Security Profiles Operator installed on the managed cluster
+RawSelinuxProfile CRD established
 Cluster selected by Placement/placement-spo-test
 ```
 
