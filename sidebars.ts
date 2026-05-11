@@ -9,6 +9,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: [
         'getting-started/overview',
+        'getting-started/requirements',
         'getting-started/deploy',
         'getting-started/validate',
       ],

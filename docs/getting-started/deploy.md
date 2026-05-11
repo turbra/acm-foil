@@ -8,17 +8,9 @@ description: Deploy ACM Foil to an ACM hub with OpenShift GitOps.
 
 Deploy from the ACM hub.
 
-## Prerequisites
+## Requirements
 
-Confirm these before applying the Argo CD application:
-
-| Requirement | Check |
-| --- | --- |
-| OpenShift GitOps is installed | `oc get ns openshift-gitops` |
-| ACM Governance is installed | `oc api-resources \| grep policy.open-cluster-management.io` |
-| Target cluster is managed by ACM | `oc get managedcluster` |
-| Target cluster has SPO installed | Check the managed cluster directly. |
-| Target cluster is labeled | `oc get managedcluster <cluster-name> --show-labels` |
+Review [Requirements](/getting-started/requirements/) before applying the Argo CD application.
 
 Label a target managed cluster:
 
