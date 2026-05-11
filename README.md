@@ -60,10 +60,12 @@ The managed policies should report `Compliant`.
 
 | PolicySet | Policies |
 |-----------|----------|
-| `policyset-blastwall-test` | `policy-blastwall-spo-profiles` |
+| `policyset-blastwall-test` | `policy-spo-rawselinuxprofile-crd`, `policy-blastwall-spo-profiles` |
 | `policyset-spo-test` | `policy-prevent-copy-fail-cve-ds`, `policy-spo-selinux-smoke` |
 
-The Blastwall policy deploys prebuilt Security Profiles Operator resources and supporting validation objects.
+The Blastwall policy set includes an inform-only precondition policy that checks for the established `RawSelinuxProfile` CRD installed by SPO. The Blastwall profile policy depends on that precondition before enforcement.
+
+The Blastwall profile policy deploys prebuilt Security Profiles Operator resources and supporting validation objects.
 
 The CVE mitigation policy deploys the Red Hat BPF LSM DaemonSet mitigation for CVE-2026-31431.
 

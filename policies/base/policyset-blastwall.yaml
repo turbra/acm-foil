@@ -6,4 +6,5 @@ metadata:
 spec:
   description: Deploy Blastwall SPO SELinux profiles and workload binding resources.
   policies:
+    - policy-spo-rawselinuxprofile-crd
     - policy-blastwall-spo-profiles

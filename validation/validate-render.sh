@@ -30,21 +30,33 @@ if command -v yq >/dev/null 2>&1; then
     select(.kind == "PolicySet")
     | .spec.policies
   ' "${rendered}"
-  echo "Checking generated policy dependencies when present"
-  yq '
-    select(.kind == "Policy" and .metadata.name == "policy-spo-selinux-profiles")
-    | .spec.dependencies
-  ' "${rendered}"
-  yq '
-    select(.kind == "Policy" and .metadata.name == "policy-spo-profilebindings")
-    | .spec.dependencies
-  ' "${rendered}"
-else
-  if [[ "${REQUIRE_YQ:-false}" == "true" ]]; then
-    echo "ERROR: yq is required for generated dependency inspection" >&2
+  echo "Checking Blastwall CRD precondition dependency"
+  dependency_count="$(
+    yq ea '
+      [
+        . | select(.kind == "Policy" and .metadata.name == "policy-blastwall-spo-profiles")
+        | .spec.dependencies[]?
+        | select(
+            .apiVersion == "policy.open-cluster-management.io/v1"
+            and .kind == "Policy"
+            and .name == "policy-spo-rawselinuxprofile-crd"
+            and .namespace == "acm-spo-policies"
+            and .compliance == "Compliant"
+          )
+      ]
+      | length
+    ' "${rendered}"
+  )"
+  if [[ "${dependency_count}" != "1" ]]; then
+    echo "ERROR: policy-blastwall-spo-profiles must depend on policy-spo-rawselinuxprofile-crd" >&2
     exit 1
   fi
-  echo "WARNING: yq not found; skipping generated dependency inspection" >&2
+else
+  if [[ "${REQUIRE_YQ:-false}" == "true" ]]; then
+    echo "ERROR: yq is required for rendered policy membership inspection" >&2
+    exit 1
+  fi
+  echo "WARNING: yq not found; skipping rendered policy membership inspection" >&2
 fi
 
 if command -v oc >/dev/null 2>&1; then
