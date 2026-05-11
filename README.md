@@ -24,6 +24,16 @@ ACM Foil is inspired by, and built in collaboration with, [Greg Procunier (`gpro
 
 ## Quick Start
 
+Requirements:
+
+- Red Hat Advanced Cluster Management
+- OpenShift GitOps / Argo CD on the ACM hub
+- Managed OpenShift clusters
+- Security Profiles Operator installed on target clusters
+- Managed cluster label `spo=true`
+
+ACM Foil does not install the Security Profiles Operator. See Red Hat's [Understanding the Security Profiles Operator](https://docs.redhat.com/en/documentation/openshift_container_platform/4.21/html/security_and_compliance/security-profiles-operator#spo-understanding) docs for what SPO provides.
+
 Deploy the Argo CD Application on the ACM hub:
 
 ```sh
