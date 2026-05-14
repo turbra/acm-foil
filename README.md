@@ -22,6 +22,8 @@
 
 ACM Foil is inspired by, and built in collaboration with, [Greg Procunier (`gprocunier`)](https://github.com/gprocunier) and his [Blastwall project](https://gprocunier.github.io/blastwall/). Blastwall demonstrates hardened fleet management for RHEL with IdM, with a path for bringing that same hardened disposition to OpenShift workloads. ACM Foil extends that model into ACM-driven OpenShift fleet management.
 
+Use ACM Foil when you want GitOps and ACM to deliver stricter workload confinement, controlled cluster placement, and compliance evidence across selected OpenShift clusters. See [Blastwall Workload Confinement](https://turbra.github.io/acm-foil/concepts/blastwall/) for the benefits and adoption boundary.
+
 ## Quick Start
 
 Requirements:
