@@ -49,14 +49,13 @@ oc get policy,policyset,placement,placementbinding -n acm-spo-policies
 
 ## Current Policy Flow
 
-```text
-GitHub repository
-  -> OpenShift GitOps on the ACM hub
-  -> ACM policy namespace
-  -> PolicySet and Placement
-  -> managed clusters labeled spo=true
-  -> security policy resources
-```
+<div className="acmfoil-flow">
+  <img
+    className="acmfoil-flow__diagram"
+    src={useBaseUrl('/diagrams/acm-foil-process-flow.svg')}
+    alt="ACM policy delivery flow from GitOps source to hub sync, placement, SPO install and profiles, DaemonSet mitigation, and compliance proof."
+  />
+</div>
 
 ## What It Deploys
 

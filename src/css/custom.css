@@ -127,6 +127,19 @@
   margin: 1rem 0 1.75rem;
 }
 
+.acmfoil-flow {
+  margin: 1.25rem 0 2rem;
+}
+
+.acmfoil-flow__diagram {
+  background: #f7f7f7;
+  border: 1px solid var(--ifm-toc-border-color);
+  border-radius: 8px;
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
 .acmfoil-link-grid {
   display: grid;
   gap: 1rem;
