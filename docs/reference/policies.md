@@ -114,7 +114,7 @@ policies/base/policy-blastwall-v2-raw-profiles.yaml
 
 Purpose:
 
-Deploy the Blastwall v2 OpenShift/SPO base resources that do not depend on status-derived SCC typing.
+Deploy the Blastwall OpenShift/SPO base resources that do not depend on status-derived SCC typing.
 
 Dependency:
 
@@ -149,7 +149,7 @@ Cluster selected by Placement/placement-spo-test
 Validate from the managed cluster:
 
 ```bash
-oc -n blastwall-spo get rawselinuxprofile blastwall blastwallnested
+oc get rawselinuxprofile blastwall blastwallnested
 oc get ns blastwall-spo blastwall-workloads
 ```
 
@@ -167,7 +167,7 @@ policies/base/policy-blastwall-v2-profile-usage.yaml
 
 Purpose:
 
-Gate SCC/RBAC rollout until both Blastwall v2 `RawSelinuxProfile` resources publish `status.usage`.
+Gate SCC/RBAC rollout until both Blastwall `RawSelinuxProfile` resources publish `status.usage`.
 
 Dependency:
 
@@ -191,7 +191,7 @@ inform
 Validate from the managed cluster:
 
 ```bash
-oc -n blastwall-spo get rawselinuxprofile blastwall blastwallnested \
+oc get rawselinuxprofile blastwall blastwallnested \
   -o custom-columns=NAME:.metadata.name,STATE:.status.state,USAGE:.status.usage
 ```
 
@@ -209,7 +209,7 @@ policies/base/policy-blastwall-v2-runtime-bindings.yaml
 
 Purpose:
 
-Deploy Blastwall v2 SCC and workload RBAC bindings after profile usage is available.
+Deploy Blastwall SCC and workload RBAC bindings after profile usage is available.
 
 Dependency:
 
@@ -225,7 +225,7 @@ SecurityContextConstraints/blastwall-nested
 ServiceAccount, Role, and RoleBinding resources for Blastwall validation workloads
 ```
 
-The SCC SELinux types are resolved from live `RawSelinuxProfile.status.usage` values. ACM Foil uses the Blastwall v2 default `calabi-ocp420-rawprofile-underscore` mode for the supported `blastwall` and `blastwallnested` profiles.
+The SCC SELinux types are resolved from live `RawSelinuxProfile.status.usage` values. ACM Foil uses the upstream default `calabi-ocp420-rawprofile-underscore` mode for the supported `blastwall` and `blastwallnested` profiles.
 
 Remediation:
 
@@ -288,47 +288,3 @@ oc get pods -n cve-2026-31431-mitigation-ebpf -o wide
 Risk:
 
 This policy deploys a privileged node-level DaemonSet. Use it only where the mitigation is approved.
-
-## `policy-spo-selinux-smoke`
-
-File:
-
-```text
-policies/base/policy-spo-selinux-smoke.yaml
-```
-
-Purpose:
-
-Create a harmless SPO `SelinuxProfile` to prove ACM can deploy SPO resources to selected clusters.
-
-Creates:
-
-```text
-SelinuxProfile/acm-spo-smoke
-```
-
-The profile inherits only the standard `container` system profile and is not bound to any workload.
-
-Remediation:
-
-```text
-enforce
-```
-
-Prerequisites:
-
-```text
-Security Profiles Operator installed by policy-install-spo-operator or already present
-SelinuxProfile CRD available
-Cluster selected by Placement/placement-spo-test
-```
-
-Validate from the managed cluster:
-
-```bash
-oc get selinuxprofile acm-spo-smoke -o yaml
-```
-
-Risk:
-
-This policy is intended as the safe orchestration proof. It creates an unbound profile and does not change workload security context.

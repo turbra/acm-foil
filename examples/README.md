@@ -14,7 +14,6 @@ Then add it to `policies/base/kustomization.yaml`:
 resources:
   - policy-install-spo-operator.yaml
   - policy-prevent-copy-fail-cve-ds.yaml
-  - policy-spo-selinux-smoke.yaml
   - policy-spo-selinux-smoke-extra.yaml
   - policyset-spo.yaml
 ```
@@ -26,7 +25,6 @@ spec:
   policies:
     - policy-install-spo-operator
     - policy-prevent-copy-fail-cve-ds
-    - policy-spo-selinux-smoke
     - policy-spo-selinux-smoke-extra
 ```
 

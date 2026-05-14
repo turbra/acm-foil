@@ -40,7 +40,6 @@ resources:
   - policy-example.yaml
   - policy-install-spo-operator.yaml
   - policy-prevent-copy-fail-cve-ds.yaml
-  - policy-spo-selinux-smoke.yaml
   - policyset-blastwall.yaml
   - policyset-spo.yaml
 ```
