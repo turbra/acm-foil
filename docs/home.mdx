@@ -61,7 +61,7 @@ oc get policy,policyset,placement,placementbinding -n acm-spo-policies
 
 | PolicySet | Purpose |
 | --- | --- |
-| `policyset-blastwall-test` | Checks SPO `RawSelinuxProfile` readiness, then deploys Blastwall Security Profiles Operator resources and validation objects. |
+| `policyset-blastwall-test` | Deploys Blastwall v2 SPO profiles, waits for `status.usage`, and applies status-derived SCC/RBAC bindings. |
 | `policyset-spo-test` | Installs the Security Profiles Operator, deploys a Red Hat CVE mitigation policy, and creates a harmless SPO smoke profile. |
 
 ACM Foil installs the Security Profiles Operator on selected managed clusters through ACM `OperatorPolicy`. Clusters must have OLM and access to the Red Hat operator catalog.

@@ -31,6 +31,8 @@ Blastwall separates OpenShift workloads into two classes.
 
 `blastwall-nested` is the exception class. Use it only for workloads that need pod-level user namespace behavior, such as rootless build or nested-container workflows. It uses the `blastwall-nested` SCC, requires pod-level user namespace behavior, and runs selected pods with the `blastwallnested_.process` SELinux type.
 
+Blastwall v2 treats `RawSelinuxProfile.status.usage` as the source of truth. ACM Foil waits for those usage strings and derives the SCC SELinux type during policy evaluation, using the upstream default `calabi-ocp420-rawprofile-underscore` mode.
+
 The nested class is not a general bypass. It omits the user namespace deny, but still denies the remaining high-risk kernel entry points.
 
 ## Control Model
@@ -40,6 +42,7 @@ Blastwall's OpenShift path separates policy installation from workload selection
 | Control | Role |
 | --- | --- |
 | `RawSelinuxProfile` | SPO compiles and installs the SELinux policy for the workload type. |
+| Usage gate | ACM waits for `RawSelinuxProfile.status.usage` before enforcing SCC bindings. |
 | SCC | OpenShift admits selected pods with the required SELinux type and security restrictions. |
 | Service account RBAC | Only intended service accounts can use the Blastwall SCCs. |
 | Validation probe | A safe Python probe checks SELinux context and attempts entry-point probes without running exploit code. |
@@ -53,9 +56,10 @@ ACM Foil adds:
 
 1. A GitOps source of truth for the Blastwall profile policy.
 2. A `RawSelinuxProfile` CRD precheck before enforcement.
-3. Placement through the `spo=true` managed-cluster label.
-4. PolicySet delivery through ACM Governance.
-5. A repeatable proof path through ACM compliance checks and the included probe ConfigMap.
+3. A Blastwall v2 usage gate before SCC/RBAC enforcement.
+4. Placement through the `spo=true` managed-cluster label.
+5. PolicySet delivery through ACM Governance.
+6. A repeatable proof path through ACM compliance checks and the included probe ConfigMap.
 
 That means operators can roll Blastwall out to selected clusters first, observe compliance, validate the profile boundary, and then expand placement deliberately.
 
@@ -65,7 +69,7 @@ ACM Foil creates the confinement path. It does not automatically confine every w
 
 Blastwall applies to workloads that intentionally opt into the matching SCC and service account path. A workload that keeps using its existing service account and SCC will not move into the Blastwall SELinux type just because the policy exists on the cluster.
 
-ACM Foil installs the Security Profiles Operator through ACM `OperatorPolicy` on clusters selected by the `spo=true` label. The `RawSelinuxProfile` CRD must become established before the Blastwall profile policy can enforce successfully.
+ACM Foil installs the Security Profiles Operator through ACM `OperatorPolicy` on clusters selected by the `spo=true` label. The `RawSelinuxProfile` CRD must become established before the Blastwall v2 raw profile policy can enforce successfully.
 
 Keep placement narrow until you have validated:
 
@@ -78,6 +82,6 @@ Keep placement narrow until you have validated:
 ## References
 
 - [ACM Foil SPO Delivery](./spo-delivery.md)
-- [Policy Reference](../reference/policies.md#policy-blastwall-spo-profiles)
+- [Policy Reference](../reference/policies.md#policy-blastwall-v2-raw-profiles)
 - [Blastwall OpenShift/SPO documentation](https://blastwall.org/openshift-spo.html)
 - [Blastwall upstream OpenShift/SPO README](https://github.com/gprocunier/blastwall/blob/main/openshift/spo/README.md)

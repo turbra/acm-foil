@@ -1,0 +1,45 @@
+# yamllint disable rule:line-length
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-blastwall-v2-profile-usage
+  namespace: acm-spo-policies
+  annotations:
+    policy.open-cluster-management.io/description: Wait for Blastwall v2 RawSelinuxProfile resources to publish status.usage before SCC binding.
+spec:
+  remediationAction: inform
+  disabled: false
+  dependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: Policy
+      name: policy-blastwall-v2-raw-profiles
+      namespace: acm-spo-policies
+      compliance: Compliant
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: blastwall-v2-profile-usage
+        spec:
+          remediationAction: inform
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: security-profiles-operator.x-k8s.io/v1alpha2
+                kind: RawSelinuxProfile
+                metadata:
+                  name: blastwall
+                  namespace: blastwall-spo
+                status:
+                  usage: '{{ default "__MISSING_STATUS_USAGE__" ((lookup "security-profiles-operator.x-k8s.io/v1alpha2" "RawSelinuxProfile" "blastwall-spo" "blastwall").status.usage) }}'
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: security-profiles-operator.x-k8s.io/v1alpha2
+                kind: RawSelinuxProfile
+                metadata:
+                  name: blastwallnested
+                  namespace: blastwall-spo
+                status:
+                  usage: '{{ default "__MISSING_STATUS_USAGE__" ((lookup "security-profiles-operator.x-k8s.io/v1alpha2" "RawSelinuxProfile" "blastwall-spo" "blastwallnested").status.usage) }}'

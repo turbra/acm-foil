@@ -1,0 +1,242 @@
+# yamllint disable rule:line-length
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-blastwall-v2-runtime-bindings
+  namespace: acm-spo-policies
+  annotations:
+    policy.open-cluster-management.io/description: Deploy Blastwall v2 SCC and workload RBAC bindings with status-derived SPO SELinux types.
+spec:
+  remediationAction: enforce
+  disabled: false
+  dependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: Policy
+      name: policy-blastwall-v2-profile-usage
+      namespace: acm-spo-policies
+      compliance: Compliant
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: blastwall-v2-runtime-bindings
+        spec:
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ServiceAccount
+                metadata:
+                  annotations:
+                    blastwall.io/source: openshift/spo
+                  labels:
+                    app.kubernetes.io/component: validation
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                    blastwall.io/workload-class: blastwall-nested
+                  name: blastwall-nested-runner
+                  namespace: blastwall-workloads
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ServiceAccount
+                metadata:
+                  annotations:
+                    blastwall.io/source: openshift/spo
+                  labels:
+                    app.kubernetes.io/component: validation
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                  name: blastwall-runner
+                  namespace: blastwall-workloads
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: Role
+                metadata:
+                  annotations:
+                    blastwall.io/source: openshift/spo
+                  labels:
+                    app.kubernetes.io/component: workload-binding
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                  name: use-blastwall-confined-scc
+                  namespace: blastwall-workloads
+                rules:
+                  - apiGroups:
+                      - security.openshift.io
+                    resourceNames:
+                      - blastwall-confined
+                    resources:
+                      - securitycontextconstraints
+                    verbs:
+                      - use
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: Role
+                metadata:
+                  annotations:
+                    blastwall.io/source: openshift/spo
+                  labels:
+                    app.kubernetes.io/component: workload-binding
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                    blastwall.io/workload-class: blastwall-nested
+                  name: use-blastwall-nested-scc
+                  namespace: blastwall-workloads
+                rules:
+                  - apiGroups:
+                      - security.openshift.io
+                    resourceNames:
+                      - blastwall-nested
+                    resources:
+                      - securitycontextconstraints
+                    verbs:
+                      - use
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  annotations:
+                    blastwall.io/source: openshift/spo
+                  labels:
+                    app.kubernetes.io/component: workload-binding
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                    blastwall.io/workload-class: blastwall-nested
+                  name: blastwall-nested-runner-uses-nested-scc
+                  namespace: blastwall-workloads
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: Role
+                  name: use-blastwall-nested-scc
+                subjects:
+                  - kind: ServiceAccount
+                    name: blastwall-nested-runner
+                    namespace: blastwall-workloads
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  annotations:
+                    blastwall.io/source: openshift/spo
+                  labels:
+                    app.kubernetes.io/component: workload-binding
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                  name: blastwall-runner-uses-confined-scc
+                  namespace: blastwall-workloads
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: Role
+                  name: use-blastwall-confined-scc
+                subjects:
+                  - kind: ServiceAccount
+                    name: blastwall-runner
+                    namespace: blastwall-workloads
+            - complianceType: musthave
+              objectDefinition:
+                allowHostDirVolumePlugin: false
+                allowHostIPC: false
+                allowHostNetwork: false
+                allowHostPID: false
+                allowHostPorts: false
+                allowPrivilegeEscalation: false
+                allowPrivilegedContainer: false
+                allowedCapabilities: []
+                apiVersion: security.openshift.io/v1
+                defaultAddCapabilities: []
+                fsGroup:
+                  type: MustRunAs
+                groups: []
+                kind: SecurityContextConstraints
+                metadata:
+                  annotations:
+                    blastwall.io/policy-nevra: blastwall-selinux-0.6.1-0.rc1
+                    blastwall.io/policy-release: 0.rc1
+                    blastwall.io/policy-version: 0.6.1
+                    blastwall.io/source: openshift/spo
+                    kubernetes.io/description: Runs selected workloads under the Security Profiles Operator SELinux type discovered from RawSelinuxProfile status.usage while preserving OpenShift namespace MCS categories.
+                  labels:
+                    app.kubernetes.io/component: workload-binding
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                  name: blastwall-confined
+                priority: null
+                readOnlyRootFilesystem: false
+                requiredDropCapabilities:
+                  - ALL
+                runAsUser:
+                  type: MustRunAsRange
+                seLinuxContext:
+                  seLinuxOptions:
+                    type: '{{ $usage := default "" ((lookup "security-profiles-operator.x-k8s.io/v1alpha2" "RawSelinuxProfile" "blastwall-spo" "blastwall").status.usage) }}{{ if hasSuffix "_.process" $usage }}{{ $usage }}{{ else if hasSuffix ".process" $usage }}{{ trimSuffix ".process" $usage }}_.process{{ else }}{{ $usage }}{{ end }}'
+                  type: MustRunAs
+                seccompProfiles:
+                  - runtime/default
+                supplementalGroups:
+                  type: RunAsAny
+                users: []
+                volumes:
+                  - configMap
+                  - downwardAPI
+                  - emptyDir
+                  - projected
+                  - secret
+            - complianceType: musthave
+              objectDefinition:
+                allowHostDirVolumePlugin: false
+                allowHostIPC: false
+                allowHostNetwork: false
+                allowHostPID: false
+                allowHostPorts: false
+                allowPrivilegeEscalation: false
+                allowPrivilegedContainer: false
+                allowedCapabilities: []
+                apiVersion: security.openshift.io/v1
+                defaultAddCapabilities: []
+                fsGroup:
+                  type: RunAsAny
+                groups: []
+                kind: SecurityContextConstraints
+                metadata:
+                  annotations:
+                    blastwall.io/policy-nevra: blastwall-selinux-0.6.1-0.rc1
+                    blastwall.io/policy-release: 0.rc1
+                    blastwall.io/policy-version: 0.6.1
+                    blastwall.io/source: openshift/spo
+                    kubernetes.io/description: Runs selected nested workloads under the Security Profiles Operator SELinux type discovered from RawSelinuxProfile status.usage with pod-level user namespace behavior. UID and group strategy fields are RunAsAny because they are interpreted inside the pod user namespace.
+                  labels:
+                    app.kubernetes.io/component: workload-binding
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                    blastwall.io/workload-class: blastwall-nested
+                  name: blastwall-nested
+                priority: null
+                readOnlyRootFilesystem: false
+                requiredDropCapabilities:
+                  - ALL
+                runAsUser:
+                  type: RunAsAny
+                seLinuxContext:
+                  seLinuxOptions:
+                    type: '{{ $usage := default "" ((lookup "security-profiles-operator.x-k8s.io/v1alpha2" "RawSelinuxProfile" "blastwall-spo" "blastwallnested").status.usage) }}{{ if hasSuffix "_.process" $usage }}{{ $usage }}{{ else if hasSuffix ".process" $usage }}{{ trimSuffix ".process" $usage }}_.process{{ else }}{{ $usage }}{{ end }}'
+                  type: MustRunAs
+                seccompProfiles:
+                  - runtime/default
+                supplementalGroups:
+                  type: RunAsAny
+                userNamespaceLevel: RequirePodLevel
+                users: []
+                volumes:
+                  - configMap
+                  - downwardAPI
+                  - emptyDir
+                  - projected
+                  - secret

@@ -32,7 +32,9 @@ The active policies should be `Compliant`:
 ```text
 policy-install-spo-operator
 policy-spo-rawselinuxprofile-crd
-policy-blastwall-spo-profiles
+policy-blastwall-v2-raw-profiles
+policy-blastwall-v2-profile-usage
+policy-blastwall-v2-runtime-bindings
 policy-prevent-copy-fail-cve-ds
 policy-spo-selinux-smoke
 ```
@@ -62,7 +64,9 @@ Check each replicated policy:
 ```bash
 oc get policy -n <cluster-name> acm-spo-policies.policy-install-spo-operator
 oc get policy -n <cluster-name> acm-spo-policies.policy-spo-rawselinuxprofile-crd
-oc get policy -n <cluster-name> acm-spo-policies.policy-blastwall-spo-profiles
+oc get policy -n <cluster-name> acm-spo-policies.policy-blastwall-v2-raw-profiles
+oc get policy -n <cluster-name> acm-spo-policies.policy-blastwall-v2-profile-usage
+oc get policy -n <cluster-name> acm-spo-policies.policy-blastwall-v2-runtime-bindings
 oc get policy -n <cluster-name> acm-spo-policies.policy-prevent-copy-fail-cve-ds
 oc get policy -n <cluster-name> acm-spo-policies.policy-spo-selinux-smoke
 ```
@@ -134,7 +138,11 @@ From the managed cluster:
 
 ```bash
 oc get selinuxprofile acm-spo-smoke -o yaml
-oc get rawselinuxprofile blastwall blastwallnested
+oc -n blastwall-spo get rawselinuxprofile blastwall blastwallnested
+oc -n blastwall-spo get rawselinuxprofile blastwall blastwallnested \
+  -o custom-columns=NAME:.metadata.name,STATE:.status.state,USAGE:.status.usage
+oc get scc blastwall-confined blastwall-nested \
+  -o custom-columns=NAME:.metadata.name,TYPE:.seLinuxContext.seLinuxOptions.type
 ```
 
 Expected:
@@ -143,6 +151,8 @@ Expected:
 SelinuxProfile/acm-spo-smoke
 RawSelinuxProfile/blastwall
 RawSelinuxProfile/blastwallnested
+SecurityContextConstraints/blastwall-confined
+SecurityContextConstraints/blastwall-nested
 ```
 
 ## Validate Locally Before Pushing
