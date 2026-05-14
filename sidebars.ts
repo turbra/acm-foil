@@ -22,6 +22,7 @@ const sidebars: SidebarsConfig = {
         'concepts/policy-flow',
         'concepts/placement',
         'concepts/spo-delivery',
+        'concepts/blastwall',
         'concepts/risk-model',
       ],
     },
