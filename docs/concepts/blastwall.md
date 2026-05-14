@@ -23,6 +23,19 @@ Blastwall is useful when a workload should keep normal Kubernetes scheduling and
 | Repeatable fleet rollout | ACM applies the same profile, SCC, RBAC, namespace, and validation resources to every selected managed cluster. |
 | Evidence-oriented validation | ACM compliance status, SPO profile readiness, pod SELinux context, and safe probes provide concrete proof that the boundary is active. |
 
+## Compared With OpenShift Defaults
+
+OpenShift already provides strong workload isolation through namespaces, SCCs, SELinux, seccomp, capabilities, admission, and cluster policy. Blastwall adds a narrower opt-in confinement path for workloads that should run with less access to kernel-facing interfaces.
+
+| Area | OpenShift Default | With Blastwall Through ACM Foil | Benefit |
+| --- | --- | --- | --- |
+| SELinux workload type | Pods use the normal OpenShift SELinux and SCC admission path. | Selected service accounts use Blastwall SCCs with SPO-created SELinux process types. | Adds a workload-specific confinement boundary for selected pods. |
+| Kernel-facing surface | Platform controls apply through SCCs, pod security labels, SELinux, seccomp, and capability handling. | Blastwall profiles deny selected high-risk entry points, including BPF, AF_ALG, packet sockets, XFRM, RXRPC, and `io_uring`. | Reduces exposure for workloads that do not need those interfaces. |
+| User namespaces | Behavior is controlled by the workload's SCC and platform configuration. | The default class denies workload-created user namespaces; the nested class permits pod-level user namespace behavior intentionally. | Keeps the exception explicit and reviewable. |
+| Workload opt-in | Workloads keep their existing service account and SCC path unless changed. | Only service accounts bound to the Blastwall SCC roles can use the Blastwall confinement path. | Avoids accidental broad adoption. |
+| Fleet rollout | Teams can use normal cluster operations, GitOps, or ACM policy patterns. | ACM placement and PolicySets target selected clusters with the `spo=true` label. | Makes rollout, observation, and expansion repeatable. |
+| Evidence | Operators can inspect platform policy, pod admission, and workload state with separate checks. | ACM compliance, SPO readiness, SCC type, pod context, and the probe ConfigMap support one validation path. | Improves the audit and operations story for confinement. |
+
 ## Workload Classes
 
 Blastwall separates OpenShift workloads into two classes.
