@@ -38,3 +38,5 @@ Use it to prove that:
 The Blastwall policy carries prebuilt SPO manifests. ACM Foil does not recreate that content by hand. It wraps the existing policy content and lets ACM deliver it to selected clusters.
 
 Review the Blastwall policy before broad rollout because it also includes namespaces, RBAC, SCCs, and validation objects.
+
+See [Blastwall Workload Confinement](./blastwall.md) for the adoption benefits and control model.
