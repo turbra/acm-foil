@@ -65,7 +65,7 @@ ACM Foil creates the confinement path. It does not automatically confine every w
 
 Blastwall applies to workloads that intentionally opt into the matching SCC and service account path. A workload that keeps using its existing service account and SCC will not move into the Blastwall SELinux type just because the policy exists on the cluster.
 
-ACM Foil also does not install the Security Profiles Operator. Target clusters must already have SPO installed and the `RawSelinuxProfile` CRD established before the Blastwall profile policy can enforce successfully.
+ACM Foil installs the Security Profiles Operator through ACM `OperatorPolicy` on clusters selected by the `spo=true` label. The `RawSelinuxProfile` CRD must become established before the Blastwall profile policy can enforce successfully.
 
 Keep placement narrow until you have validated:
 

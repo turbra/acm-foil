@@ -48,6 +48,7 @@ PlacementBinding/binding-policyset-blastwall-test
 PlacementBinding/binding-policyset-spo-test
 PolicySet/policyset-blastwall-test
 PolicySet/policyset-spo-test
+Policy/policy-install-spo-operator
 Policy/policy-spo-rawselinuxprofile-crd
 Policy/policy-blastwall-spo-profiles
 Policy/policy-prevent-copy-fail-cve-ds

@@ -63,9 +63,9 @@ GitHub repository
 | PolicySet | Purpose |
 | --- | --- |
 | `policyset-blastwall-test` | Checks SPO `RawSelinuxProfile` readiness, then deploys Blastwall Security Profiles Operator resources and validation objects. |
-| `policyset-spo-test` | Deploys a Red Hat CVE mitigation policy and a harmless SPO smoke profile. |
+| `policyset-spo-test` | Installs the Security Profiles Operator, deploys a Red Hat CVE mitigation policy, and creates a harmless SPO smoke profile. |
 
-ACM Foil does not install the Security Profiles Operator. Target clusters must already have SPO installed when SPO-specific policies are enabled.
+ACM Foil installs the Security Profiles Operator on selected managed clusters through ACM `OperatorPolicy`. Clusters must have OLM and access to the Red Hat operator catalog.
 
 ## Explore
 

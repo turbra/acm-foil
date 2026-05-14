@@ -30,6 +30,7 @@ oc get policy,policyset,placement,placementbinding,managedclustersetbinding \
 The active policies should be `Compliant`:
 
 ```text
+policy-install-spo-operator
 policy-spo-rawselinuxprofile-crd
 policy-blastwall-spo-profiles
 policy-prevent-copy-fail-cve-ds
@@ -59,10 +60,33 @@ oc get policy -n <cluster-name>
 Check each replicated policy:
 
 ```bash
+oc get policy -n <cluster-name> acm-spo-policies.policy-install-spo-operator
 oc get policy -n <cluster-name> acm-spo-policies.policy-spo-rawselinuxprofile-crd
 oc get policy -n <cluster-name> acm-spo-policies.policy-blastwall-spo-profiles
 oc get policy -n <cluster-name> acm-spo-policies.policy-prevent-copy-fail-cve-ds
 oc get policy -n <cluster-name> acm-spo-policies.policy-spo-selinux-smoke
+```
+
+## Prove the SPO Operator Installed
+
+From the hub:
+
+```bash
+oc get policy -n <cluster-name> acm-spo-policies.policy-install-spo-operator \
+  -o jsonpath='{.status.compliant}{"\n"}'
+```
+
+Expected:
+
+```text
+Compliant
+```
+
+From the managed cluster:
+
+```bash
+oc get operatorpolicy -A | grep install-spo-operator
+oc get namespace openshift-security-profiles
 ```
 
 ## Prove the RawSelinuxProfile API Is Ready
