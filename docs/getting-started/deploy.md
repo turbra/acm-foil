@@ -50,10 +50,14 @@ PolicySet/policyset-blastwall-test
 PolicySet/policyset-spo-test
 Policy/policy-install-spo-operator
 Policy/policy-spo-rawselinuxprofile-crd
-Policy/policy-blastwall-spo-profiles
+Policy/policy-blastwall-v2-raw-profiles
+Policy/policy-blastwall-v2-profile-usage
+Policy/policy-blastwall-v2-runtime-bindings
 Policy/policy-prevent-copy-fail-cve-ds
 Policy/policy-spo-selinux-smoke
 ```
+
+The Argo CD application keeps automated sync and pruning enabled, but `selfHeal` is disabled during the Blastwall v2 transition.
 
 ## Expected Result
 

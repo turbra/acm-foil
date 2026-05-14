@@ -4,7 +4,9 @@ metadata:
   name: policyset-blastwall-test
   namespace: acm-spo-policies
 spec:
-  description: Deploy Blastwall SPO SELinux profiles and workload binding resources.
+  description: Deploy Blastwall v2 SPO profiles and status-derived workload binding resources.
   policies:
     - policy-spo-rawselinuxprofile-crd
-    - policy-blastwall-spo-profiles
+    - policy-blastwall-v2-raw-profiles
+    - policy-blastwall-v2-profile-usage
+    - policy-blastwall-v2-runtime-bindings

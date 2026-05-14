@@ -104,17 +104,17 @@ Risk:
 
 This policy does not install SPO or create the CRD. It only reports whether the target cluster has the required SPO API available after the install policy runs.
 
-## `policy-blastwall-spo-profiles`
+## `policy-blastwall-v2-raw-profiles`
 
 File:
 
 ```text
-policies/base/policy-blastwall-spo-profiles.yaml
+policies/base/policy-blastwall-v2-raw-profiles.yaml
 ```
 
 Purpose:
 
-Deploy Blastwall SPO resources from the upstream Blastwall OpenShift SPO manifests.
+Deploy the Blastwall v2 OpenShift/SPO base resources that do not depend on status-derived SCC typing.
 
 Dependency:
 
@@ -129,9 +129,6 @@ Namespace/blastwall-spo
 Namespace/blastwall-workloads
 RawSelinuxProfile/blastwall
 RawSelinuxProfile/blastwallnested
-SecurityContextConstraints/blastwall-confined
-SecurityContextConstraints/blastwall-nested
-ServiceAccount, Role, and RoleBinding resources for Blastwall validation workloads
 ConfigMap/blastwall-spo-probe
 ```
 
@@ -152,13 +149,101 @@ Cluster selected by Placement/placement-spo-test
 Validate from the managed cluster:
 
 ```bash
-oc get rawselinuxprofile blastwall blastwallnested
+oc -n blastwall-spo get rawselinuxprofile blastwall blastwallnested
 oc get ns blastwall-spo blastwall-workloads
 ```
 
 Risk:
 
-This policy creates SCC, RBAC, namespace, and validation resources. Keep placement narrow until the Blastwall rollout path is understood.
+This policy creates namespaces, SPO raw profiles, and the validation probe ConfigMap. It does not grant workload access to the Blastwall SCCs.
+
+## `policy-blastwall-v2-profile-usage`
+
+File:
+
+```text
+policies/base/policy-blastwall-v2-profile-usage.yaml
+```
+
+Purpose:
+
+Gate SCC/RBAC rollout until both Blastwall v2 `RawSelinuxProfile` resources publish `status.usage`.
+
+Dependency:
+
+```text
+policy-blastwall-v2-raw-profiles must be Compliant
+```
+
+Checks:
+
+```text
+RawSelinuxProfile/blastwall status.usage
+RawSelinuxProfile/blastwallnested status.usage
+```
+
+Remediation:
+
+```text
+inform
+```
+
+Validate from the managed cluster:
+
+```bash
+oc -n blastwall-spo get rawselinuxprofile blastwall blastwallnested \
+  -o custom-columns=NAME:.metadata.name,STATE:.status.state,USAGE:.status.usage
+```
+
+Risk:
+
+This policy is a rollout gate. If SPO has not compiled and published usage strings, `policy-blastwall-v2-runtime-bindings` does not enforce SCC/RBAC bindings.
+
+## `policy-blastwall-v2-runtime-bindings`
+
+File:
+
+```text
+policies/base/policy-blastwall-v2-runtime-bindings.yaml
+```
+
+Purpose:
+
+Deploy Blastwall v2 SCC and workload RBAC bindings after profile usage is available.
+
+Dependency:
+
+```text
+policy-blastwall-v2-profile-usage must be Compliant
+```
+
+Creates:
+
+```text
+SecurityContextConstraints/blastwall-confined
+SecurityContextConstraints/blastwall-nested
+ServiceAccount, Role, and RoleBinding resources for Blastwall validation workloads
+```
+
+The SCC SELinux types are resolved from live `RawSelinuxProfile.status.usage` values. ACM Foil uses the Blastwall v2 default `calabi-ocp420-rawprofile-underscore` mode, which derives `blastwall_.process` from `blastwall.process`.
+
+Remediation:
+
+```text
+enforce
+```
+
+Validate from the managed cluster:
+
+```bash
+oc get scc blastwall-confined blastwall-nested \
+  -o custom-columns=NAME:.metadata.name,TYPE:.seLinuxContext.seLinuxOptions.type
+oc -n blastwall-workloads get serviceaccount,role,rolebinding
+```
+
+Risk:
+
+This policy grants selected service accounts access to the Blastwall SCCs. Keep placement narrow until profile readiness, SCC admission, and probe results are validated.
 
 ## `policy-prevent-copy-fail-cve-ds`
 

@@ -65,11 +65,30 @@ if command -v yq >/dev/null 2>&1; then
     echo "ERROR: policy-install-spo-operator must include the SPO OperatorPolicy template" >&2
     exit 1
   fi
-  echo "Checking Blastwall CRD precondition dependency"
-  dependency_count="$(
+  echo "Checking Blastwall v2 policy membership"
+  blastwall_v2_membership_count="$(
     yq ea '
       [
-        . | select(.kind == "Policy" and .metadata.name == "policy-blastwall-spo-profiles")
+        . | select(.kind == "PolicySet" and .metadata.name == "policyset-blastwall-test")
+        | .spec.policies[]?
+        | select(
+            . == "policy-blastwall-v2-raw-profiles"
+            or . == "policy-blastwall-v2-profile-usage"
+            or . == "policy-blastwall-v2-runtime-bindings"
+          )
+      ]
+      | length
+    ' "${rendered}"
+  )"
+  if [[ "${blastwall_v2_membership_count}" != "3" ]]; then
+    echo "ERROR: policyset-blastwall-test must include the three Blastwall v2 policies" >&2
+    exit 1
+  fi
+  echo "Checking Blastwall v2 CRD precondition dependency"
+  raw_dependency_count="$(
+    yq ea '
+      [
+        . | select(.kind == "Policy" and .metadata.name == "policy-blastwall-v2-raw-profiles")
         | .spec.dependencies[]?
         | select(
             .apiVersion == "policy.open-cluster-management.io/v1"
@@ -82,8 +101,44 @@ if command -v yq >/dev/null 2>&1; then
       | length
     ' "${rendered}"
   )"
-  if [[ "${dependency_count}" != "1" ]]; then
-    echo "ERROR: policy-blastwall-spo-profiles must depend on policy-spo-rawselinuxprofile-crd" >&2
+  if [[ "${raw_dependency_count}" != "1" ]]; then
+    echo "ERROR: policy-blastwall-v2-raw-profiles must depend on policy-spo-rawselinuxprofile-crd" >&2
+    exit 1
+  fi
+  echo "Checking Blastwall v2 staged rollout dependencies"
+  staged_dependency_count="$(
+    yq ea '
+      [
+        . | select(.kind == "Policy" and .metadata.name == "policy-blastwall-v2-profile-usage")
+        | .spec.dependencies[]?
+        | select(.name == "policy-blastwall-v2-raw-profiles" and .compliance == "Compliant")
+      ] + [
+        . | select(.kind == "Policy" and .metadata.name == "policy-blastwall-v2-runtime-bindings")
+        | .spec.dependencies[]?
+        | select(.name == "policy-blastwall-v2-profile-usage" and .compliance == "Compliant")
+      ]
+      | length
+    ' "${rendered}"
+  )"
+  if [[ "${staged_dependency_count}" != "2" ]]; then
+    echo "ERROR: Blastwall v2 usage and runtime policies must be dependency-gated" >&2
+    exit 1
+  fi
+  echo "Checking Blastwall v2 status-derived SCC templates"
+  status_derived_scc_count="$(
+    yq ea '
+      [
+        . | select(.kind == "Policy" and .metadata.name == "policy-blastwall-v2-runtime-bindings")
+        | .spec."policy-templates"[]?.objectDefinition.spec."object-templates"[]?.objectDefinition
+        | select(.kind == "SecurityContextConstraints")
+        | .seLinuxContext.seLinuxOptions.type
+        | select(test("lookup.*RawSelinuxProfile.*status\\.usage"))
+      ]
+      | length
+    ' "${rendered}"
+  )"
+  if [[ "${status_derived_scc_count}" != "2" ]]; then
+    echo "ERROR: Blastwall v2 SCC policies must derive SELinux types from RawSelinuxProfile status.usage" >&2
     exit 1
   fi
 else

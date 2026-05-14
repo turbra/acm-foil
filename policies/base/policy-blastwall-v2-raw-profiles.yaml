@@ -1,0 +1,491 @@
+# yamllint disable rule:line-length
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-blastwall-v2-raw-profiles
+  namespace: acm-spo-policies
+  annotations:
+    policy.open-cluster-management.io/description: Deploy Blastwall v2 SPO namespaces, RawSelinuxProfile resources, and validation probe config from upstream manifests.
+spec:
+  remediationAction: enforce
+  disabled: false
+  dependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: Policy
+      name: policy-spo-rawselinuxprofile-crd
+      namespace: acm-spo-policies
+      compliance: Compliant
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: blastwall-v2-raw-profiles
+        spec:
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  annotations:
+                    blastwall.io/source: openshift/spo
+                  labels:
+                    app.kubernetes.io/component: selinux-profile
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                  name: blastwall-spo
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  annotations:
+                    blastwall.io/source: openshift/spo
+                  labels:
+                    app.kubernetes.io/component: validation
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                    pod-security.kubernetes.io/audit: restricted
+                    pod-security.kubernetes.io/enforce: privileged
+                    pod-security.kubernetes.io/warn: restricted
+                    security.openshift.io/scc.podSecurityLabelSync: 'false'
+                  name: blastwall-workloads
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                data:
+                  blastwall_spo_probe.py: |
+                    #!/usr/bin/env python3
+                    """Safe OpenShift/SPO probe harness for the Blastwall workload profile."""
+
+                    from __future__ import annotations
+
+                    import ctypes
+                    import errno
+                    import json
+                    import os
+                    import socket
+                    import struct
+                    import subprocess
+                    import sys
+                    from dataclasses import dataclass
+                    from pathlib import Path
+
+
+                    PROFILE_CLASS = os.environ.get("BLASTWALL_PROFILE_CLASS", "standard")
+                    STRANGE_SOCKET_V1 = os.environ.get("BLASTWALL_STRANGE_SOCKET_V1", "").strip().lower() in {
+                        "1",
+                        "true",
+                        "yes",
+                    }
+                    SELINUX_CLASS_DIR = Path("/sys/fs/selinux/class")
+                    SKIP_ERRNOS = {
+                        errno.EAFNOSUPPORT,
+                        errno.EINVAL,
+                        errno.ENODEV,
+                        errno.ENOENT,
+                        errno.ENOPROTOOPT,
+                        errno.ENOSYS,
+                        errno.EPROTONOSUPPORT,
+                        errno.ESOCKTNOSUPPORT,
+                    }
+
+
+                    @dataclass
+                    class ProbeResult:
+                        name: str
+                        status: str
+                        detail: str
+
+
+                    def required_env(name: str) -> str:
+                        value = os.environ.get(name, "").strip()
+                        if not value:
+                            print(json.dumps({
+                                "overall": "FAIL",
+                                "reason": f"missing required environment variable {name}",
+                            }, sort_keys=True), file=sys.stderr)
+                            raise SystemExit(2)
+                        return value
+
+
+                    EXPECTED_TYPE = required_env("BLASTWALL_EXPECTED_SELINUX_TYPE")
+
+
+                    def classify_errno(value: int | None) -> str:
+                        if value in (errno.EPERM, errno.EACCES):
+                            return "BLOCKED"
+                        return "FAIL_UNKNOWN"
+
+
+                    def classify_absent_errno(value: int | None, *, optional: bool) -> str:
+                        if value in (errno.EPERM, errno.EACCES):
+                            return "BLOCKED"
+                        if value in SKIP_ERRNOS:
+                            return "SKIP_ABSENT" if optional else "FAIL_MISSING_CLASS_REQUIRED"
+                        return "FAIL_UNKNOWN"
+
+
+                    def read_context() -> str:
+                        try:
+                            context = subprocess.check_output(["id", "-Z"], text=True, stderr=subprocess.STDOUT, timeout=5).strip()
+                            if context:
+                                return context
+                        except subprocess.TimeoutExpired as exc:
+                            return f"context command timed out after {exc.timeout:.0f}s"
+                        except Exception:
+                            pass
+
+                        try:
+                            return Path("/proc/self/attr/current").read_text(encoding="utf-8", errors="replace").strip("\x00\n")
+                        except Exception as exc:  # pragma: no cover - depends on container image
+                            return f"unavailable: {exc}"
+
+
+                    def probe_socket(name: str, family: int, socktype: int, proto: int = 0, *, optional: bool = False) -> ProbeResult:
+                        try:
+                            sock = socket.socket(family, socktype, proto)
+                            sock.close()
+                            return ProbeResult(name, "FAIL_ALLOWED", "socket creation succeeded")
+                        except OSError as exc:
+                            return ProbeResult(name, classify_absent_errno(exc.errno, optional=optional), f"errno {exc.errno}: {exc.strerror}")
+
+
+                    def selinux_class_absent(object_class: str) -> bool:
+                        return SELINUX_CLASS_DIR.exists() and not (SELINUX_CLASS_DIR / object_class).exists()
+
+
+                    def probe_optional_socket(name: str, object_class: str, family: int, socktype: int, proto: int = 0) -> ProbeResult:
+                        if selinux_class_absent(object_class):
+                            return ProbeResult(name, "SKIP_ABSENT", f"SELinux object class {object_class} is absent")
+                        return probe_socket(name, family, socktype, proto, optional=True)
+
+
+                    def family(name: str, fallback: int) -> int:
+                        return int(getattr(socket, name, fallback))
+
+
+                    def probe_userns() -> ProbeResult:
+                        libc = ctypes.CDLL(None, use_errno=True)
+                        clone_newuser = 0x10000000
+                        rc = libc.unshare(clone_newuser)
+                        if rc == 0:
+                            return ProbeResult("userns", "FAIL_ALLOWED", "unshare(CLONE_NEWUSER) succeeded")
+
+                        err = ctypes.get_errno()
+                        if err in (errno.EPERM, errno.EACCES):
+                            return ProbeResult("userns", "BLOCKED", f"errno {err}: {os.strerror(err)}")
+                        if err in (errno.EINVAL, errno.ENOSYS):
+                            return ProbeResult("userns", "SKIP_ABSENT", f"errno {err}: {os.strerror(err)}")
+                        return ProbeResult("userns", "FAIL_UNKNOWN", f"errno {err}: {os.strerror(err)}")
+
+
+                    def read_proc_file(name: str, path: str) -> ProbeResult:
+                        try:
+                            value = Path(path).read_text(encoding="utf-8", errors="replace").strip()
+                            return ProbeResult(name, "PASS", value.replace("\n", " | "))
+                        except Exception as exc:  # pragma: no cover - depends on container runtime
+                            return ProbeResult(name, "SKIP_ABSENT", f"unavailable: {exc}")
+
+
+                    def syscall_number(name: str) -> int | None:
+                        if os.uname().machine != "x86_64":
+                            return None
+                        return {
+                            "bpf": 321,
+                            "io_uring_setup": 425,
+                        }.get(name)
+
+
+                    def probe_bpf() -> ProbeResult:
+                        number = syscall_number("bpf")
+                        if number is None:
+                            return ProbeResult("bpf", "FAIL_MISSING_CLASS_REQUIRED", "syscall number unavailable for this architecture")
+
+                        libc = ctypes.CDLL(None, use_errno=True)
+                        attr = ctypes.create_string_buffer(256)
+                        # BPF_MAP_CREATE, BPF_MAP_TYPE_ARRAY, key_size=4, value_size=4, max_entries=1.
+                        struct.pack_into("IIIII", attr, 0, 1, 4, 4, 1, 0)
+                        rc = libc.syscall(number, 0, ctypes.byref(attr), ctypes.sizeof(attr))
+                        if rc >= 0:
+                            os.close(rc)
+                            return ProbeResult("bpf", "FAIL_ALLOWED", "BPF_MAP_CREATE succeeded")
+
+                        err = ctypes.get_errno()
+                        if err in (errno.EPERM, errno.EACCES):
+                            return ProbeResult("bpf", "BLOCKED", f"errno {err}: {os.strerror(err)}")
+                        if err in (errno.ENOSYS, errno.EINVAL, errno.E2BIG):
+                            return ProbeResult("bpf", "FAIL_MISSING_CLASS_REQUIRED", f"errno {err}: {os.strerror(err)}")
+                        return ProbeResult("bpf", "FAIL_UNKNOWN", f"errno {err}: {os.strerror(err)}")
+
+
+                    def probe_io_uring_setup() -> ProbeResult:
+                        number = syscall_number("io_uring_setup")
+                        if number is None:
+                            return ProbeResult("io_uring_setup", "SKIP_ABSENT", "syscall number unavailable for this architecture")
+
+                        libc = ctypes.CDLL(None, use_errno=True)
+                        params = ctypes.create_string_buffer(256)
+                        rc = libc.syscall(number, 2, ctypes.byref(params))
+                        if rc >= 0:
+                            os.close(rc)
+                            return ProbeResult("io_uring_setup", "FAIL_ALLOWED", "io_uring_setup succeeded")
+
+                        err = ctypes.get_errno()
+                        if err in (errno.EPERM, errno.EACCES):
+                            return ProbeResult("io_uring_setup", "BLOCKED", f"errno {err}: {os.strerror(err)}")
+                        if err == errno.ENOSYS:
+                            return ProbeResult("io_uring_setup", "SKIP_ABSENT", f"errno {err}: {os.strerror(err)}")
+                        return ProbeResult("io_uring_setup", "FAIL_UNKNOWN", f"errno {err}: {os.strerror(err)}")
+
+
+                    def probe_syscall(name: str) -> ProbeResult:
+                        number = syscall_number(name)
+                        if number is None:
+                            return ProbeResult(name, "FAIL_MISSING_CLASS_REQUIRED", "syscall number unavailable for this architecture")
+
+                        libc = ctypes.CDLL(None, use_errno=True)
+                        rc = libc.syscall(number, 0, 0, 0)
+                        if rc == 0:
+                            return ProbeResult(name, "FAIL_ALLOWED", "syscall unexpectedly succeeded")
+
+                        err = ctypes.get_errno()
+                        if err in (errno.EPERM, errno.EACCES):
+                            return ProbeResult(name, "BLOCKED", f"errno {err}: {os.strerror(err)}")
+                        if err in (errno.ENOSYS, errno.EINVAL, errno.EFAULT):
+                            return ProbeResult(name, "FAIL_MISSING_CLASS_REQUIRED", f"errno {err}: {os.strerror(err)}")
+                        return ProbeResult(name, "FAIL_UNKNOWN", f"errno {err}: {os.strerror(err)}")
+
+
+                    def as_dict(result: ProbeResult) -> dict[str, str]:
+                        return {"name": result.name, "status": result.status, "detail": result.detail}
+
+
+                    def main() -> int:
+                        context = read_context()
+                        userns_result = probe_userns()
+                        nested_profile = PROFILE_CLASS in {"nested", "nested-strange"}
+                        if nested_profile and userns_result.name == "userns":
+                            if userns_result.status == "FAIL_ALLOWED" and "succeeded" in userns_result.detail:
+                                userns_result = ProbeResult("userns", "PASS", "unshare(CLONE_NEWUSER) succeeded")
+                            elif userns_result.status in ("BLOCKED", "SKIP_ABSENT", "FAIL_MISSING_CLASS_REQUIRED"):
+                                userns_result = ProbeResult("userns", userns_result.status, f"second user namespace not required: {userns_result.detail}")
+
+                        results = [
+                            ProbeResult("selinux_context", "PASS" if EXPECTED_TYPE in context else "FAIL", context),
+                            probe_socket("NETLINK_XFRM", socket.AF_NETLINK, socket.SOCK_RAW, 6),
+                            probe_socket("AF_RXRPC", getattr(socket, "AF_RXRPC", 33), socket.SOCK_DGRAM, 0),
+                            probe_socket("AF_PACKET", socket.AF_PACKET, socket.SOCK_RAW, socket.htons(0x0003)),
+                            probe_socket("Fragnesia AF_ALG", getattr(socket, "AF_ALG", 38), socket.SOCK_SEQPACKET, 0),
+                            userns_result,
+                            probe_bpf(),
+                            probe_io_uring_setup(),
+                        ]
+                        if STRANGE_SOCKET_V1:
+                            results.extend([
+                                probe_optional_socket("AF_XDP", "xdp_socket", family("AF_XDP", 44), socket.SOCK_RAW, 0),
+                                probe_optional_socket("AF_TIPC", "tipc_socket", family("AF_TIPC", 30), socket.SOCK_RDM, 0),
+                                probe_optional_socket("AF_CAN", "can_socket", family("AF_CAN", 29), socket.SOCK_RAW, getattr(socket, "CAN_RAW", 1)),
+                                probe_optional_socket("AF_BLUETOOTH", "bluetooth_socket", family("AF_BLUETOOTH", 31), socket.SOCK_RAW, 0),
+                                probe_optional_socket("AF_NFC", "nfc_socket", family("AF_NFC", 39), socket.SOCK_RAW, 0),
+                                probe_optional_socket("AF_KCM", "kcm_socket", family("AF_KCM", 41), socket.SOCK_DGRAM, 0),
+                                probe_optional_socket("AF_RDS", "rds_socket", family("AF_RDS", 21), socket.SOCK_SEQPACKET, 0),
+                            ])
+                        if nested_profile:
+                            results.extend([
+                                read_proc_file("uid_map", "/proc/self/uid_map"),
+                                read_proc_file("gid_map", "/proc/self/gid_map"),
+                            ])
+                        overall = "PASS" if all(result.status in ("PASS", "BLOCKED", "SKIP_ABSENT") for result in results) else "FAIL"
+
+                        print(f"Profile class: {PROFILE_CLASS}")
+                        print(f"SELinux context: {context}")
+                        for result in results:
+                            print(f"{result.status}: {result.name}: {result.detail}")
+                        print(json.dumps({
+                            "overall": overall,
+                            "profile_class": PROFILE_CLASS,
+                            "expected_type": EXPECTED_TYPE,
+                            "selinux_context": context,
+                            "results": [as_dict(result) for result in results],
+                        }, sort_keys=True))
+                        print(f"{PROFILE_CLASS}_profile: {'passed' if overall == 'PASS' else 'failed'}")
+
+                        return 0 if overall == "PASS" else 1
+
+
+                    if __name__ == "__main__":
+                        sys.exit(main())
+                kind: ConfigMap
+                metadata:
+                  annotations:
+                    blastwall.io/policy-nevra: blastwall-selinux-0.6.1-0.rc1
+                    blastwall.io/policy-release: 0.rc1
+                    blastwall.io/policy-version: 0.6.1
+                    blastwall.io/source: tests/openshift/blastwall_spo_probe.py
+                  labels:
+                    app.kubernetes.io/component: validation
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                  name: blastwall-spo-probe
+                  namespace: blastwall-workloads
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: security-profiles-operator.x-k8s.io/v1alpha2
+                kind: RawSelinuxProfile
+                metadata:
+                  annotations:
+                    blastwall.io/policy-nevra: blastwall-selinux-0.6.1-0.rc1
+                    blastwall.io/policy-release: 0.rc1
+                    blastwall.io/policy-version: 0.6.1
+                    blastwall.io/source: policy/Makefile
+                  labels:
+                    app.kubernetes.io/component: selinux-profile
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                    blastwall.io/workload-class: blastwall
+                  name: blastwall
+                  namespace: blastwall-spo
+                spec:
+                  policy: |
+                    (blockinherit container)
+
+                    (optional blastwall_userns_deny
+                      (deny process self (user_namespace (create)))
+                      (neverallow process self (user_namespace (create))))
+
+                    (optional blastwall_xfrm_deny
+                      (deny process self (netlink_xfrm_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind nlmsg_read nlmsg_write read recv_msg recvfrom relabelfrom
+                         relabelto send_msg sendto setattr setopt shutdown write)))
+                      (neverallow process self (netlink_xfrm_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind nlmsg_read nlmsg_write read recv_msg recvfrom relabelfrom
+                         relabelto send_msg sendto setattr setopt shutdown write))))
+
+                    (optional blastwall_rxrpc_deny
+                      (deny process self (rxrpc_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write)))
+                      (neverallow process self (rxrpc_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write))))
+
+                    (optional blastwall_packet_socket_deny
+                      (deny process self (packet_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write)))
+                      (neverallow process self (packet_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write))))
+
+                    (optional blastwall_alg_socket_deny
+                      (deny process self (alg_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write)))
+                      (neverallow process self (alg_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write))))
+
+                    (optional blastwall_bpf_deny
+                      (deny process self (bpf
+                        (map_create map_read map_write prog_load prog_run)))
+                      (neverallow process self (bpf
+                        (map_create map_read map_write prog_load prog_run))))
+
+                    (optional blastwall_capability2_bpf_deny
+                      (deny process self (capability2 (bpf)))
+                      (neverallow process self (capability2 (bpf))))
+
+                    (optional blastwall_io_uring_deny
+                      (deny process self (io_uring
+                        (cmd override_creds sqpoll)))
+                      (neverallow process self (io_uring
+                        (cmd override_creds sqpoll))))
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: security-profiles-operator.x-k8s.io/v1alpha2
+                kind: RawSelinuxProfile
+                metadata:
+                  annotations:
+                    blastwall.io/policy-nevra: blastwall-selinux-0.6.1-0.rc1
+                    blastwall.io/policy-release: 0.rc1
+                    blastwall.io/policy-version: 0.6.1
+                    blastwall.io/source: policy/Makefile
+                  labels:
+                    app.kubernetes.io/component: selinux-profile
+                    app.kubernetes.io/name: blastwall
+                    blastwall.io/profile: openshift-spo
+                    blastwall.io/public-profile-name: blastwall-nested
+                    blastwall.io/workload-class: blastwall-nested
+                  name: blastwallnested
+                  namespace: blastwall-spo
+                spec:
+                  policy: |
+                    (blockinherit container)
+
+                    (optional blastwall_nested_xfrm_deny
+                      (deny process self (netlink_xfrm_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind nlmsg_read nlmsg_write read recv_msg recvfrom relabelfrom
+                         relabelto send_msg sendto setattr setopt shutdown write)))
+                      (neverallow process self (netlink_xfrm_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind nlmsg_read nlmsg_write read recv_msg recvfrom relabelfrom
+                         relabelto send_msg sendto setattr setopt shutdown write))))
+
+                    (optional blastwall_nested_rxrpc_deny
+                      (deny process self (rxrpc_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write)))
+                      (neverallow process self (rxrpc_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write))))
+
+                    (optional blastwall_nested_packet_socket_deny
+                      (deny process self (packet_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write)))
+                      (neverallow process self (packet_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write))))
+
+                    (optional blastwall_nested_alg_socket_deny
+                      (deny process self (alg_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write)))
+                      (neverallow process self (alg_socket
+                        (accept append bind connect create getattr getopt ioctl listen lock map
+                         name_bind read recv_msg recvfrom relabelfrom relabelto send_msg sendto
+                         setattr setopt shutdown write))))
+
+                    (optional blastwall_nested_bpf_deny
+                      (deny process self (bpf
+                        (map_create map_read map_write prog_load prog_run)))
+                      (neverallow process self (bpf
+                        (map_create map_read map_write prog_load prog_run))))
+
+                    (optional blastwall_nested_capability2_bpf_deny
+                      (deny process self (capability2 (bpf)))
+                      (neverallow process self (capability2 (bpf))))
+
+                    (optional blastwall_nested_io_uring_deny
+                      (deny process self (io_uring
+                        (cmd override_creds sqpoll)))
+                      (neverallow process self (io_uring
+                        (cmd override_creds sqpoll))))

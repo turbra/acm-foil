@@ -17,6 +17,8 @@ CustomResourceDefinition/rawselinuxprofiles.security-profiles-operator.x-k8s.io 
 SelinuxProfile/acm-spo-smoke
 RawSelinuxProfile/blastwall
 RawSelinuxProfile/blastwallnested
+SecurityContextConstraints/blastwall-confined
+SecurityContextConstraints/blastwall-nested
 ```
 
 ## Operator Install
@@ -29,7 +31,7 @@ The same `spo=true` managed-cluster label controls where the operator is install
 
 Blastwall uses SPO `RawSelinuxProfile` resources. ACM Foil checks that the target cluster has the `rawselinuxprofiles.security-profiles-operator.x-k8s.io` CRD and that it is `Established=True`.
 
-The precondition policy is inform-only. The install policy owns operator installation, and the Blastwall profile policy depends on the CRD precondition before enforcement.
+The precondition policy is inform-only. The install policy owns operator installation, and the Blastwall v2 raw profile policy depends on the CRD precondition before enforcement.
 
 ## Smoke Profile
 
@@ -43,8 +45,12 @@ Use it to prove that:
 
 ## Blastwall Profiles
 
-The Blastwall policy carries prebuilt SPO manifests. ACM Foil does not recreate that content by hand. It wraps the existing policy content and lets ACM deliver it to selected clusters.
+The Blastwall v2 policies carry prebuilt upstream SPO manifests and split rollout into stages:
 
-Review the Blastwall policy before broad rollout because it also includes namespaces, RBAC, SCCs, and validation objects.
+1. Apply namespaces, `RawSelinuxProfile` resources, and the validation probe ConfigMap.
+2. Wait for `RawSelinuxProfile.status.usage`.
+3. Apply SCC and RBAC bindings with SELinux types derived from the live usage strings.
+
+Review the Blastwall policies before broad rollout because they include namespaces, RBAC, SCCs, and validation objects.
 
 See [Blastwall Workload Confinement](./blastwall.md) for the adoption benefits and control model.

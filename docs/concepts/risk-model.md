@@ -16,9 +16,11 @@ It is useful for proving orchestration because it does not attach the profile to
 
 ## Blastwall Policy
 
-`policy-blastwall-spo-profiles` creates SPO profiles plus supporting namespaces, RBAC, SCCs, and validation resources.
+The Blastwall v2 policies create SPO profiles plus supporting namespaces, RBAC, SCCs, and validation resources.
 
-Review the generated resources before expanding placement beyond a limited rollout.
+`policy-blastwall-v2-runtime-bindings` grants service accounts access to the Blastwall SCCs. Review those bindings before expanding placement beyond a limited rollout.
+
+During the Blastwall v2 transition, Argo CD `selfHeal` is disabled so manual cleanup is not immediately reverted. Re-enable it after the rollout is verified.
 
 ## CVE Mitigation Policy
 

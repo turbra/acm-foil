@@ -18,7 +18,9 @@ Policies:
 
 ```text
 policy-spo-rawselinuxprofile-crd
-policy-blastwall-spo-profiles
+policy-blastwall-v2-raw-profiles
+policy-blastwall-v2-profile-usage
+policy-blastwall-v2-runtime-bindings
 ```
 
 PlacementBinding:

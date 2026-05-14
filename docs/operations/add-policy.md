@@ -34,7 +34,9 @@ Example:
 
 ```yaml
 resources:
-  - policy-blastwall-spo-profiles.yaml
+  - policy-blastwall-v2-profile-usage.yaml
+  - policy-blastwall-v2-raw-profiles.yaml
+  - policy-blastwall-v2-runtime-bindings.yaml
   - policy-example.yaml
   - policy-install-spo-operator.yaml
   - policy-prevent-copy-fail-cve-ds.yaml
