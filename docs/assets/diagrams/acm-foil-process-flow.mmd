@@ -2,7 +2,7 @@ flowchart LR
     SOURCE["GitOps source<br/>policies and PolicySets<br/>placement overlay<br/>Argo CD app"]
     HUB["Hub sync<br/>OpenShift GitOps<br/>acm-spo-policies<br/>ACM resources ready"]
     PLACEMENT["Placement<br/>spo=true clusters<br/>PolicySet bindings<br/>shared target set"]
-    SPO["SPO profile delivery<br/>RawSelinuxProfile<br/>CRD precheck<br/>Blastwall profiles"]
+    SPO["SPO install and profiles<br/>OperatorPolicy install<br/>CRD precheck<br/>Blastwall profiles"]
     DS["DaemonSet mitigation<br/>BPF LSM policy<br/>CVE mitigation"]
     PROOF["Compliance proof<br/>ACM policy status<br/>managed resources<br/>validation checks"]
 

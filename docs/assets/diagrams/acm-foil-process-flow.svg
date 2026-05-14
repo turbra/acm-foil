@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ACM policy delivery process showing GitOps source, hub sync, shared placement, separate SPO profile and DaemonSet mitigation delivery branches, and combined compliance proof." width="2172" height="724" viewBox="0 0 2172 724">
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ACM policy delivery process showing GitOps source, hub sync, shared placement, separate SPO install and DaemonSet mitigation delivery branches, and combined compliance proof." width="2172" height="724" viewBox="0 0 2172 724">
   <defs>
     <filter id="shadow" x="-8%" y="-12%" width="116%" height="132%">
       <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.12"/>
@@ -105,14 +105,14 @@
     <g class="icon" transform="translate(1418 214)">
       <path d="M 32 0 L 64 13 V 38 C 64 58 51 74 32 86 C 13 74 0 58 0 38 V 13 Z"/>
     </g>
-    <text class="title" x="1556" y="194">SPO profile delivery</text>
-    <text class="body" x="1500" y="252">
-      <tspan x="1500" dy="0">RawSelinuxProfile</tspan>
-      <tspan x="1500" dy="30">CRD precheck</tspan>
-      <tspan x="1500" dy="30">Blastwall profiles</tspan>
+    <text class="title" x="1556" y="194">SPO install and profiles</text>
+    <text class="body" x="1494" y="252">
+      <tspan x="1494" dy="0">OperatorPolicy install</tspan>
+      <tspan x="1494" dy="30">CRD precheck</tspan>
+      <tspan x="1494" dy="30">Blastwall profiles</tspan>
     </text>
     <rect class="chip" x="1427" y="350" width="258" height="44" rx="8"/>
-    <text class="chipText" x="1556" y="372">SPO gated</text>
+    <text class="chipText" x="1556" y="372">SPO ready</text>
   </g>
 
   <g id="step-daemonset">
