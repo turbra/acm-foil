@@ -40,9 +40,6 @@ spec:
           severity: high
           complianceType: musthave
           upgradeApproval: Automatic
-          operatorGroup:
-            name: security-profiles-operator
-            namespace: openshift-security-profiles
           subscription:
             channel: release-alpha-rhel-8
             name: security-profiles-operator

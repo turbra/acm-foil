@@ -35,6 +35,8 @@ sourceNamespace: openshift-marketplace
 upgradeApproval: Automatic
 ```
 
+The policy leaves `operatorGroup` unset so ACM can accept an existing OperatorGroup in `openshift-security-profiles` or create the default group when none exists.
+
 Remediation:
 
 ```text
