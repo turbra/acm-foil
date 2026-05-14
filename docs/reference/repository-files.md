@@ -71,7 +71,11 @@ docs/
 docusaurus.config.ts
 sidebars.ts
 src/css/custom.css
+docs/assets/diagrams/
+static/diagrams/
 static/img/
 ```
 
 Use these files when changing the docs site structure, navigation, or visual style.
+
+Keep editable diagram source material under `docs/assets/diagrams/`. Serve approved SVG diagrams from `static/diagrams/` so GitHub Pages exposes stable browser-rendered asset URLs.

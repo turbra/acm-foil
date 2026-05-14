@@ -4,18 +4,16 @@ title: Policy Flow
 description: How a repository change becomes managed-cluster policy state.
 ---
 
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
 # Policy Flow
 
 ACM Foil keeps policy content in Git and lets ACM handle cluster distribution.
 
-```text
-GitHub repository
-  -> OpenShift GitOps Application
-  -> ACM hub resources
-  -> PolicySet placement
-  -> replicated managed-cluster policies
-  -> managed-cluster resources
-```
+<img
+  src={useBaseUrl('/diagrams/acm-foil-process-flow.svg')}
+  alt="ACM Policy Delivery Flow"
+/>
 
 ## Source of Truth
 
