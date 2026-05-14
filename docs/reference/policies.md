@@ -6,6 +6,67 @@ description: Reference for each active ACM policy.
 
 # Policies
 
+## `policy-install-spo-operator`
+
+File:
+
+```text
+policies/base/policy-install-spo-operator.yaml
+```
+
+Purpose:
+
+Install the Security Profiles Operator on selected managed clusters by using ACM `OperatorPolicy`.
+
+Creates:
+
+```text
+Namespace/openshift-security-profiles
+OperatorPolicy/install-spo-operator
+```
+
+The `OperatorPolicy` requests:
+
+```text
+package: security-profiles-operator
+channel: release-alpha-rhel-8
+source: redhat-operators
+sourceNamespace: openshift-marketplace
+upgradeApproval: Automatic
+```
+
+Remediation:
+
+```text
+enforce
+```
+
+Prerequisites:
+
+```text
+ACM OperatorPolicy support
+OLM available on the managed cluster
+Red Hat operator catalog available to the managed cluster
+Cluster selected by Placement/placement-spo-test
+```
+
+Validate from the hub:
+
+```bash
+oc get policy -n <cluster-name> acm-spo-policies.policy-install-spo-operator
+```
+
+Validate from the managed cluster:
+
+```bash
+oc get operatorpolicy -A | grep install-spo-operator
+oc get namespace openshift-security-profiles
+```
+
+Risk:
+
+This policy installs a cluster operator and automatically approves SPO updates from the configured channel.
+
 ## `policy-spo-rawselinuxprofile-crd`
 
 File:
@@ -39,7 +100,7 @@ oc get policy -n <cluster-name> acm-spo-policies.policy-spo-rawselinuxprofile-cr
 
 Risk:
 
-This policy does not install SPO or create the CRD. It only reports whether the target cluster has the required SPO API available.
+This policy does not install SPO or create the CRD. It only reports whether the target cluster has the required SPO API available after the install policy runs.
 
 ## `policy-blastwall-spo-profiles`
 
@@ -81,7 +142,7 @@ enforce
 Prerequisites:
 
 ```text
-Security Profiles Operator installed on the managed cluster
+Security Profiles Operator installed by policy-install-spo-operator or already present
 RawSelinuxProfile CRD established
 Cluster selected by Placement/placement-spo-test
 ```
@@ -170,7 +231,7 @@ enforce
 Prerequisites:
 
 ```text
-Security Profiles Operator installed on the managed cluster
+Security Profiles Operator installed by policy-install-spo-operator or already present
 SelinuxProfile CRD available
 Cluster selected by Placement/placement-spo-test
 ```

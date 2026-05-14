@@ -6,22 +6,30 @@ description: How ACM Foil delivers Security Profiles Operator resources.
 
 # SPO Delivery
 
-ACM Foil assumes the Security Profiles Operator is already installed on target clusters.
+ACM Foil installs the Security Profiles Operator on selected managed clusters before applying SPO-backed resources.
 
 The repository proves ACM can deliver SPO resources by applying:
 
 ```text
+Namespace/openshift-security-profiles
+OperatorPolicy/install-spo-operator
 CustomResourceDefinition/rawselinuxprofiles.security-profiles-operator.x-k8s.io readiness check
 SelinuxProfile/acm-spo-smoke
 RawSelinuxProfile/blastwall
 RawSelinuxProfile/blastwallnested
 ```
 
+## Operator Install
+
+`policy-install-spo-operator` creates the `openshift-security-profiles` namespace and uses ACM `OperatorPolicy` to install the `security-profiles-operator` package from `redhat-operators`.
+
+The same `spo=true` managed-cluster label controls where the operator is installed.
+
 ## CRD Precondition
 
 Blastwall uses SPO `RawSelinuxProfile` resources. ACM Foil checks that the target cluster has the `rawselinuxprofiles.security-profiles-operator.x-k8s.io` CRD and that it is `Established=True`.
 
-The precondition policy is inform-only. It does not install SPO. The Blastwall profile policy depends on that precondition before enforcement.
+The precondition policy is inform-only. The install policy owns operator installation, and the Blastwall profile policy depends on the CRD precondition before enforcement.
 
 ## Smoke Profile
 

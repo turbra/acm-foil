@@ -45,6 +45,7 @@ policies/base/policyset-spo.yaml
 Policies:
 
 ```text
+policy-install-spo-operator
 policy-prevent-copy-fail-cve-ds
 policy-spo-selinux-smoke
 ```

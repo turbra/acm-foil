@@ -30,6 +30,41 @@ if command -v yq >/dev/null 2>&1; then
     select(.kind == "PolicySet")
     | .spec.policies
   ' "${rendered}"
+  echo "Checking SPO operator install policy membership"
+  spo_install_membership_count="$(
+    yq ea '
+      [
+        . | select(.kind == "PolicySet" and .metadata.name == "policyset-spo-test")
+        | .spec.policies[]?
+        | select(. == "policy-install-spo-operator")
+      ]
+      | length
+    ' "${rendered}"
+  )"
+  if [[ "${spo_install_membership_count}" != "1" ]]; then
+    echo "ERROR: policyset-spo-test must include policy-install-spo-operator" >&2
+    exit 1
+  fi
+  echo "Checking SPO install policy OperatorPolicy template"
+  spo_operator_policy_count="$(
+    yq ea '
+      [
+        . | select(.kind == "Policy" and .metadata.name == "policy-install-spo-operator")
+        | .spec."policy-templates"[]?.objectDefinition
+        | select(
+            .apiVersion == "policy.open-cluster-management.io/v1beta1"
+            and .kind == "OperatorPolicy"
+            and .metadata.name == "install-spo-operator"
+            and .spec.subscription.name == "security-profiles-operator"
+          )
+      ]
+      | length
+    ' "${rendered}"
+  )"
+  if [[ "${spo_operator_policy_count}" != "1" ]]; then
+    echo "ERROR: policy-install-spo-operator must include the SPO OperatorPolicy template" >&2
+    exit 1
+  fi
   echo "Checking Blastwall CRD precondition dependency"
   dependency_count="$(
     yq ea '

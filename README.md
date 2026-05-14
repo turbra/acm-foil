@@ -27,12 +27,12 @@ ACM Foil is inspired by, and built in collaboration with, [Greg Procunier (`gpro
 Requirements:
 
 - Red Hat Advanced Cluster Management
+- ACM `OperatorPolicy` support on the hub and managed clusters
 - OpenShift GitOps / Argo CD on the ACM hub
-- Managed OpenShift clusters
-- Security Profiles Operator installed on target clusters
+- Managed OpenShift clusters with OLM and access to the Red Hat operator catalog
 - Managed cluster label `spo=true`
 
-ACM Foil does not install the Security Profiles Operator. See Red Hat's [Understanding the Security Profiles Operator](https://docs.redhat.com/en/documentation/openshift_container_platform/4.21/html/security_and_compliance/security-profiles-operator#spo-understanding) docs for what SPO provides.
+ACM Foil installs the Security Profiles Operator on selected managed clusters by using ACM `OperatorPolicy`. See Red Hat's [Understanding the Security Profiles Operator](https://docs.redhat.com/en/documentation/openshift_container_platform/4.21/html/security_and_compliance/security-profiles-operator#spo-understanding) docs for what SPO provides.
 
 Deploy the Argo CD Application on the ACM hub:
 
@@ -61,9 +61,11 @@ The managed policies should report `Compliant`.
 | PolicySet | Policies |
 |-----------|----------|
 | `policyset-blastwall-test` | `policy-spo-rawselinuxprofile-crd`, `policy-blastwall-spo-profiles` |
-| `policyset-spo-test` | `policy-prevent-copy-fail-cve-ds`, `policy-spo-selinux-smoke` |
+| `policyset-spo-test` | `policy-install-spo-operator`, `policy-prevent-copy-fail-cve-ds`, `policy-spo-selinux-smoke` |
 
-The Blastwall policy set includes an inform-only precondition policy that checks for the established `RawSelinuxProfile` CRD installed by SPO. The Blastwall profile policy depends on that precondition before enforcement.
+The SPO policy set installs the Security Profiles Operator into `openshift-security-profiles` through the Red Hat operator catalog. The active placement still controls where this happens.
+
+The Blastwall policy set includes an inform-only precondition policy that checks for the established `RawSelinuxProfile` CRD provided by SPO. The Blastwall profile policy depends on that precondition before enforcement.
 
 The Blastwall profile policy deploys prebuilt Security Profiles Operator resources and supporting validation objects.
 

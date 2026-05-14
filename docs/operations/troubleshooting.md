@@ -82,9 +82,17 @@ Then prove the policy was replicated:
 oc get policy -n <cluster-name>
 ```
 
-If placement and replication are correct, check the managed cluster directly:
+If placement and replication are correct, check the SPO install policy:
 
 ```bash
+oc get policy -n <cluster-name> acm-spo-policies.policy-install-spo-operator -o yaml
+```
+
+Then check the managed cluster directly:
+
+```bash
+oc get operatorpolicy -A | grep install-spo-operator
+oc get namespace openshift-security-profiles
 oc get selinuxprofile
 oc get rawselinuxprofile
 ```

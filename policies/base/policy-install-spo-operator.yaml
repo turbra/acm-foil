@@ -1,0 +1,51 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-install-spo-operator
+  namespace: acm-spo-policies
+  annotations:
+    policy.open-cluster-management.io/description: >-
+      Installs the Security Profiles Operator on selected managed clusters by
+      using an ACM OperatorPolicy and the Red Hat operator catalog.
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: spo-operator-namespace
+        spec:
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: openshift-security-profiles
+                  labels:
+                    openshift.io/cluster-monitoring: "true"
+                  annotations:
+                    openshift.io/node-selector: ""
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1beta1
+        kind: OperatorPolicy
+        metadata:
+          name: install-spo-operator
+        spec:
+          remediationAction: enforce
+          severity: high
+          complianceType: musthave
+          upgradeApproval: Automatic
+          operatorGroup:
+            name: security-profiles-operator
+            namespace: openshift-security-profiles
+          subscription:
+            channel: release-alpha-rhel-8
+            name: security-profiles-operator
+            namespace: openshift-security-profiles
+            source: redhat-operators
+            sourceNamespace: openshift-marketplace
