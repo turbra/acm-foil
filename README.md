@@ -61,17 +61,15 @@ The managed policies should report `Compliant`.
 | PolicySet | Policies |
 |-----------|----------|
 | `policyset-blastwall-test` | `policy-spo-rawselinuxprofile-crd`, `policy-blastwall-v2-raw-profiles`, `policy-blastwall-v2-profile-usage`, `policy-blastwall-v2-runtime-bindings` |
-| `policyset-spo-test` | `policy-install-spo-operator`, `policy-prevent-copy-fail-cve-ds`, `policy-spo-selinux-smoke` |
+| `policyset-spo-test` | `policy-install-spo-operator`, `policy-prevent-copy-fail-cve-ds` |
 
 The SPO policy set installs the Security Profiles Operator into `openshift-security-profiles` through the Red Hat operator catalog. The active placement still controls where this happens.
 
-The Blastwall policy set includes an inform-only precondition policy that checks for the established `RawSelinuxProfile` CRD provided by SPO. The Blastwall v2 rollout then applies raw profile resources, waits for `status.usage`, and applies SCC/RBAC bindings with status-derived SELinux types.
+The Blastwall policy set includes an inform-only precondition policy that checks for the established `RawSelinuxProfile` CRD provided by SPO. The Blastwall rollout then applies raw profile resources, waits for `status.usage`, and applies SCC/RBAC bindings with status-derived SELinux types.
 
-The Argo CD application keeps automated sync and pruning enabled, but disables `selfHeal` during the Blastwall v2 transition so manual cleanup is not immediately reverted.
+The Argo CD application keeps automated sync and pruning enabled, but disables `selfHeal` during the Blastwall transition so manual cleanup is not immediately reverted.
 
 The CVE mitigation policy deploys the Red Hat BPF LSM DaemonSet mitigation for CVE-2026-31431.
-
-The SPO smoke policy creates one harmless, unbound `SelinuxProfile` so you can prove ACM policy delivery without changing workload security context.
 
 ## Documentation
 

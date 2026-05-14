@@ -36,7 +36,6 @@ policy-blastwall-v2-raw-profiles
 policy-blastwall-v2-profile-usage
 policy-blastwall-v2-runtime-bindings
 policy-prevent-copy-fail-cve-ds
-policy-spo-selinux-smoke
 ```
 
 ## Check Placement
@@ -68,7 +67,6 @@ oc get policy -n <cluster-name> acm-spo-policies.policy-blastwall-v2-raw-profile
 oc get policy -n <cluster-name> acm-spo-policies.policy-blastwall-v2-profile-usage
 oc get policy -n <cluster-name> acm-spo-policies.policy-blastwall-v2-runtime-bindings
 oc get policy -n <cluster-name> acm-spo-policies.policy-prevent-copy-fail-cve-ds
-oc get policy -n <cluster-name> acm-spo-policies.policy-spo-selinux-smoke
 ```
 
 ## Prove the SPO Operator Installed
@@ -137,9 +135,8 @@ oc get pods -n cve-2026-31431-mitigation-ebpf -o wide
 From the managed cluster:
 
 ```bash
-oc get selinuxprofile acm-spo-smoke -o yaml
-oc -n blastwall-spo get rawselinuxprofile blastwall blastwallnested
-oc -n blastwall-spo get rawselinuxprofile blastwall blastwallnested \
+oc get rawselinuxprofile blastwall blastwallnested
+oc get rawselinuxprofile blastwall blastwallnested \
   -o custom-columns=NAME:.metadata.name,STATE:.status.state,USAGE:.status.usage
 oc get scc blastwall-confined blastwall-nested \
   -o custom-columns=NAME:.metadata.name,TYPE:.seLinuxContext.seLinuxOptions.type
@@ -148,7 +145,6 @@ oc get scc blastwall-confined blastwall-nested \
 Expected:
 
 ```text
-SelinuxProfile/acm-spo-smoke
 RawSelinuxProfile/blastwall
 RawSelinuxProfile/blastwallnested
 SecurityContextConstraints/blastwall-confined

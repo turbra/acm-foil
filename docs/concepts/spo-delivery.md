@@ -14,7 +14,6 @@ The repository proves ACM can deliver SPO resources by applying:
 Namespace/openshift-security-profiles
 OperatorPolicy/install-spo-operator
 CustomResourceDefinition/rawselinuxprofiles.security-profiles-operator.x-k8s.io readiness check
-SelinuxProfile/acm-spo-smoke
 RawSelinuxProfile/blastwall
 RawSelinuxProfile/blastwallnested
 SecurityContextConstraints/blastwall-confined
@@ -31,21 +30,11 @@ The same `spo=true` managed-cluster label controls where the operator is install
 
 Blastwall uses SPO `RawSelinuxProfile` resources. ACM Foil checks that the target cluster has the `rawselinuxprofiles.security-profiles-operator.x-k8s.io` CRD and that it is `Established=True`.
 
-The precondition policy is inform-only. The install policy owns operator installation, and the Blastwall v2 raw profile policy depends on the CRD precondition before enforcement.
-
-## Smoke Profile
-
-The smoke profile is intentionally harmless. It creates a `SelinuxProfile` that inherits from the standard `container` system profile and is not bound to any workload.
-
-Use it to prove that:
-
-1. The cluster was selected by ACM placement.
-2. ACM replicated and enforced the policy.
-3. The managed cluster accepted an SPO custom resource.
+The precondition policy is inform-only. The install policy owns operator installation, and the Blastwall raw profile policy depends on the CRD precondition before enforcement.
 
 ## Blastwall Profiles
 
-The Blastwall v2 policies carry prebuilt upstream SPO manifests and split rollout into stages:
+The Blastwall policies carry prebuilt upstream SPO manifests and split rollout into stages:
 
 1. Apply namespaces, `RawSelinuxProfile` resources, and the validation probe ConfigMap.
 2. Wait for `RawSelinuxProfile.status.usage`.

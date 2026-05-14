@@ -31,7 +31,6 @@ resources:
   - policy-blastwall-v2-runtime-bindings.yaml
   - policy-install-spo-operator.yaml
   - policy-prevent-copy-fail-cve-ds.yaml
-  - policy-spo-selinux-smoke.yaml
   - policy-spo-selinux-smoke-extra.yaml
   - policyset-blastwall.yaml
   - policyset-spo.yaml
@@ -44,7 +43,6 @@ spec:
   policies:
     - policy-install-spo-operator
     - policy-prevent-copy-fail-cve-ds
-    - policy-spo-selinux-smoke
     - policy-spo-selinux-smoke-extra
 ```
 

@@ -10,7 +10,7 @@ Examples are intentionally outside the active policy base. They are safe to insp
 
 ## Extra SPO Smoke Policy
 
-Use the extra smoke policy when you want to prove the add-policy workflow without changing the existing active policies.
+Use the extra smoke policy when you want to prove the add-policy workflow with an optional SPO custom resource.
 
 ```text
 examples/policy-spo-selinux-smoke-extra.yaml

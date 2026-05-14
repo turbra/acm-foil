@@ -4,8 +4,7 @@ metadata:
   name: policyset-spo-test
   namespace: acm-spo-policies
 spec:
-  description: Install SPO and smoke test ACM policy orchestration for SPO policy delivery.
+  description: Install SPO and deploy shared mitigation policies.
   policies:
     - policy-install-spo-operator
     - policy-prevent-copy-fail-cve-ds
-    - policy-spo-selinux-smoke

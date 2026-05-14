@@ -31,7 +31,7 @@ Blastwall separates OpenShift workloads into two classes.
 
 `blastwall-nested` is the exception class. Use it only for workloads that need pod-level user namespace behavior, such as rootless build or nested-container workflows. It uses the `blastwall-nested` SCC, requires pod-level user namespace behavior, and runs selected pods with the `blastwallnested_.process` SELinux type.
 
-Blastwall v2 treats `RawSelinuxProfile.status.usage` as the source of truth. ACM Foil waits for those usage strings and derives the SCC SELinux type during policy evaluation, using the upstream default `calabi-ocp420-rawprofile-underscore` mode.
+Blastwall treats `RawSelinuxProfile.status.usage` as the source of truth. ACM Foil waits for those usage strings and derives the SCC SELinux type during policy evaluation, using the upstream default `calabi-ocp420-rawprofile-underscore` mode.
 
 The nested class is not a general bypass. It omits the user namespace deny, but still denies the remaining high-risk kernel entry points.
 
@@ -56,7 +56,7 @@ ACM Foil adds:
 
 1. A GitOps source of truth for the Blastwall profile policy.
 2. A `RawSelinuxProfile` CRD precheck before enforcement.
-3. A Blastwall v2 usage gate before SCC/RBAC enforcement.
+3. A usage gate before SCC/RBAC enforcement.
 4. Placement through the `spo=true` managed-cluster label.
 5. PolicySet delivery through ACM Governance.
 6. A repeatable proof path through ACM compliance checks and the included probe ConfigMap.
@@ -69,7 +69,7 @@ ACM Foil creates the confinement path. It does not automatically confine every w
 
 Blastwall applies to workloads that intentionally opt into the matching SCC and service account path. A workload that keeps using its existing service account and SCC will not move into the Blastwall SELinux type just because the policy exists on the cluster.
 
-ACM Foil installs the Security Profiles Operator through ACM `OperatorPolicy` on clusters selected by the `spo=true` label. The `RawSelinuxProfile` CRD must become established before the Blastwall v2 raw profile policy can enforce successfully.
+ACM Foil installs the Security Profiles Operator through ACM `OperatorPolicy` on clusters selected by the `spo=true` label. The `RawSelinuxProfile` CRD must become established before the Blastwall raw profile policy can enforce successfully.
 
 Keep placement narrow until you have validated:
 
