@@ -176,7 +176,7 @@ spec:
                   type: MustRunAsRange
                 seLinuxContext:
                   seLinuxOptions:
-                    type: '{{ $usage := default "" ((lookup "security-profiles-operator.x-k8s.io/v1alpha2" "RawSelinuxProfile" "blastwall-spo" "blastwall").status.usage) }}{{ if hasSuffix "_.process" $usage }}{{ $usage }}{{ else if hasSuffix ".process" $usage }}{{ trimSuffix ".process" $usage }}_.process{{ else }}{{ $usage }}{{ end }}'
+                    type: '{{ $usage := default "" ((lookup "security-profiles-operator.x-k8s.io/v1alpha2" "RawSelinuxProfile" "blastwall-spo" "blastwall").status.usage) }}{{ if eq $usage "blastwall.process" }}blastwall_.process{{ else }}{{ $usage }}{{ end }}'
                   type: MustRunAs
                 seccompProfiles:
                   - runtime/default
@@ -226,7 +226,7 @@ spec:
                   type: RunAsAny
                 seLinuxContext:
                   seLinuxOptions:
-                    type: '{{ $usage := default "" ((lookup "security-profiles-operator.x-k8s.io/v1alpha2" "RawSelinuxProfile" "blastwall-spo" "blastwallnested").status.usage) }}{{ if hasSuffix "_.process" $usage }}{{ $usage }}{{ else if hasSuffix ".process" $usage }}{{ trimSuffix ".process" $usage }}_.process{{ else }}{{ $usage }}{{ end }}'
+                    type: '{{ $usage := default "" ((lookup "security-profiles-operator.x-k8s.io/v1alpha2" "RawSelinuxProfile" "blastwall-spo" "blastwallnested").status.usage) }}{{ if eq $usage "blastwallnested.process" }}blastwallnested_.process{{ else }}{{ $usage }}{{ end }}'
                   type: MustRunAs
                 seccompProfiles:
                   - runtime/default

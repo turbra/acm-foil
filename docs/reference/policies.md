@@ -225,7 +225,7 @@ SecurityContextConstraints/blastwall-nested
 ServiceAccount, Role, and RoleBinding resources for Blastwall validation workloads
 ```
 
-The SCC SELinux types are resolved from live `RawSelinuxProfile.status.usage` values. ACM Foil uses the Blastwall v2 default `calabi-ocp420-rawprofile-underscore` mode, which derives `blastwall_.process` from `blastwall.process`.
+The SCC SELinux types are resolved from live `RawSelinuxProfile.status.usage` values. ACM Foil uses the Blastwall v2 default `calabi-ocp420-rawprofile-underscore` mode for the supported `blastwall` and `blastwallnested` profiles.
 
 Remediation:
 
