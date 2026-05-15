@@ -56,7 +56,7 @@ Policy/policy-blastwall-v2-runtime-bindings
 Policy/policy-prevent-copy-fail-cve-ds
 ```
 
-The Argo CD application keeps automated sync and pruning enabled, but `selfHeal` is disabled during the Blastwall transition.
+The Argo CD application keeps automated sync, pruning, and self-healing enabled so the hub state returns to the Git-defined policy set after manual drift.
 
 ## Expected Result
 

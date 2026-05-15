@@ -69,7 +69,7 @@ The SPO policy set installs the Security Profiles Operator into `openshift-secur
 
 The Blastwall policy set includes an inform-only precondition policy that checks for the established `RawSelinuxProfile` CRD provided by SPO. The Blastwall rollout then applies raw profile resources, waits for `status.usage`, and applies SCC/RBAC bindings with status-derived SELinux types.
 
-The Argo CD application keeps automated sync and pruning enabled, but disables `selfHeal` during the Blastwall transition so manual cleanup is not immediately reverted.
+The Argo CD application keeps automated sync, pruning, and self-healing enabled so the hub state returns to the Git-defined policy set after manual drift.
 
 The CVE mitigation policy deploys the Red Hat BPF LSM DaemonSet mitigation for CVE-2026-31431.
 
