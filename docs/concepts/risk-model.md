@@ -14,7 +14,7 @@ The Blastwall policies create SPO profiles plus supporting namespaces, RBAC, SCC
 
 `policy-blastwall-v2-runtime-bindings` grants service accounts access to the Blastwall SCCs. Review those bindings before expanding placement beyond a limited rollout.
 
-During the Blastwall transition, Argo CD `selfHeal` is disabled so manual cleanup is not immediately reverted. Re-enable it after the rollout is verified.
+Argo CD self-healing returns hub resources to the Git-defined policy set after manual drift. Use a planned change or a temporary maintenance branch for deliberate maintenance windows.
 
 ## CVE Mitigation Policy
 
