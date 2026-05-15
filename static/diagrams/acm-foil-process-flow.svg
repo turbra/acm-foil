@@ -141,13 +141,13 @@
       <path d="M 13 29 H 36"/>
       <circle cx="50" cy="29" r="4"/>
     </g>
-    <text class="title" x="1955" y="302">Compliance proof</text>
+    <text class="title" x="1955" y="302">Compliance evidence</text>
     <text class="body" x="1904" y="354">
       <tspan x="1904" dy="0">ACM policy status</tspan>
       <tspan x="1904" dy="34">managed resources</tspan>
-      <tspan x="1904" dy="34">validation checks</tspan>
+      <tspan x="1904" dy="34">runtime validation</tspan>
     </text>
     <rect class="chip" x="1826" y="526" width="258" height="48" rx="8"/>
-    <text class="chipText" x="1955" y="550">enforcement proven</text>
+    <text class="chipText" x="1955" y="550">validation required</text>
   </g>
 </svg>

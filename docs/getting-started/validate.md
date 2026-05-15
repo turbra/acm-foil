@@ -151,6 +151,20 @@ SecurityContextConstraints/blastwall-confined
 SecurityContextConstraints/blastwall-nested
 ```
 
+## Understand the Probe Limitation
+
+`ConfigMap/blastwall-spo-probe` means the probe script was delivered. It does not prove that a workload ran under a Blastwall SCC or that SELinux denied the expected kernel-facing operations.
+
+Runtime proof requires a pod or Job for each workload class that:
+
+1. Uses the intended Blastwall service account and SCC path.
+2. Runs with the expected SELinux process type.
+3. Mounts and executes the probe from `ConfigMap/blastwall-spo-probe`.
+4. Fails on context mismatch, `FAIL_ALLOWED`, or unknown probe results.
+5. Captures output with the cluster name, Git commit, OpenShift version, SPO version, workload class, SCC name, and timestamp.
+
+Until that execution result is collected, ACM Foil has proven delivery of validation material, not runtime confinement.
+
 ## Validate Locally Before Pushing
 
 ```bash
