@@ -71,7 +71,7 @@ The Blastwall policy set includes an inform-only precondition policy that checks
 
 The Argo CD application keeps automated sync, pruning, and self-healing enabled so the hub state returns to the Git-defined policy set after manual drift.
 
-The CVE mitigation policy deploys the Red Hat BPF LSM DaemonSet mitigation for CVE-2026-31431.
+The CVE mitigation policy deploys the Red Hat BPF LSM DaemonSet mitigation for [CVE-2026-31431](https://access.redhat.com/security/cve/cve-2026-31431).
 
 ## Documentation
 
