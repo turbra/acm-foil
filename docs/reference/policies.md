@@ -155,7 +155,7 @@ oc get ns blastwall-spo blastwall-workloads
 
 Risk:
 
-This policy creates namespaces, SPO raw profiles, and the validation probe ConfigMap. It does not grant workload access to the Blastwall SCCs.
+This policy creates namespaces, SPO raw profiles, and the validation probe ConfigMap. It does not grant workload access to the Blastwall SCCs, and ConfigMap presence does not prove runtime confinement. Treat the probe as validation material until a pod or Job executes it and the output is collected.
 
 ## `policy-blastwall-v2-profile-usage`
 

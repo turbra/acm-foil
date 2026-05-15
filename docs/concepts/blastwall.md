@@ -21,7 +21,7 @@ Blastwall is useful when a workload should keep normal Kubernetes scheduling and
 | Narrow exception path | The nested profile permits pod-level user namespace behavior for workloads that need it, while keeping the other kernel-surface denies. |
 | Controlled workload binding | SCC access is granted through specific service accounts and RBAC rather than broad cluster-wide access. |
 | Repeatable fleet rollout | ACM applies the same profile, SCC, RBAC, namespace, and validation resources to every selected managed cluster. |
-| Evidence-oriented validation | ACM compliance status, SPO profile readiness, pod SELinux context, and safe probes provide concrete proof that the boundary is active. |
+| Evidence-oriented validation | ACM compliance status, SPO profile readiness, pod SELinux context, and executed probe results provide concrete proof that the boundary is active. |
 
 ## Compared With OpenShift Defaults
 
@@ -34,7 +34,7 @@ OpenShift already provides strong workload isolation through namespaces, SCCs, S
 | Linux user namespaces | Behavior is controlled by the workload's SCC and platform configuration. | The default class denies Linux user namespace creation inside the workload; the nested class intentionally permits pod-level Linux user namespace behavior. | Keeps the exception explicit and reviewable. |
 | Workload opt-in | Workloads keep their existing service account and SCC path unless changed. | Only service accounts bound to the Blastwall SCC roles can use the Blastwall confinement path. | Avoids accidental broad adoption. |
 | Fleet rollout | Teams can use normal cluster operations, GitOps, or ACM policy patterns. | ACM placement and PolicySets target selected clusters with the `spo=true` label. | Makes rollout, observation, and expansion repeatable. |
-| Evidence | Operators can inspect platform policy, pod admission, and workload state with separate checks. | ACM compliance, SPO readiness, SCC type, pod context, and the probe ConfigMap support one validation path. | Improves the audit and operations story for confinement. |
+| Evidence | Operators can inspect platform policy, pod admission, and workload state with separate checks. | ACM compliance, SPO readiness, SCC type, pod context, and executed probe output support one validation path. | Improves the audit and operations story for confinement. |
 
 ## Workload Classes
 
@@ -58,7 +58,7 @@ Blastwall's OpenShift path separates policy installation from workload selection
 | Usage gate | ACM waits for `RawSelinuxProfile.status.usage` before enforcing SCC bindings. |
 | SCC | OpenShift admits selected pods with the required SELinux type and security restrictions. |
 | Service account RBAC | Only intended service accounts can use the Blastwall SCCs. |
-| Validation probe | A safe Python probe checks SELinux context and attempts entry-point probes without running exploit code. |
+| Validation probe | The delivered probe ConfigMap supports validation. It does not prove enforcement until a pod or Job runs it under each Blastwall SCC and the output is collected. |
 | ACM policy status | ACM reports whether the managed cluster has the expected namespaces, profiles, SCCs, RBAC, and probe ConfigMap. |
 
 ## What ACM Foil Adds
@@ -72,7 +72,7 @@ ACM Foil adds:
 3. A usage gate before SCC/RBAC enforcement.
 4. Placement through the `spo=true` managed-cluster label.
 5. PolicySet delivery through ACM Governance.
-6. A repeatable proof path through ACM compliance checks and the included probe ConfigMap.
+6. A repeatable proof path through ACM compliance checks, pod context checks, and executed probe output.
 
 That means operators can roll Blastwall out to selected clusters first, observe compliance, validate the profile boundary, and then expand placement deliberately.
 
@@ -91,6 +91,8 @@ Keep placement narrow until you have validated:
 3. Pod SELinux context.
 4. Probe results for the selected workload class.
 5. Rollback expectations for workloads that cannot run under the stricter profile.
+
+See [Validate](/getting-started/validate/#understand-the-probe-limitation) for the probe limitation and the minimum runtime proof expected before treating the boundary as validated.
 
 ## References
 

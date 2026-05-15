@@ -4,7 +4,7 @@ flowchart LR
     PLACEMENT["Placement<br/>spo=true clusters<br/>PolicySet bindings<br/>shared target set"]
     SPO["SPO install and profiles<br/>OperatorPolicy install<br/>CRD precheck<br/>Blastwall profiles"]
     DS["DaemonSet mitigation<br/>BPF LSM policy<br/>CVE mitigation"]
-    PROOF["Compliance proof<br/>ACM policy status<br/>managed resources<br/>validation checks"]
+    PROOF["Compliance evidence<br/>ACM policy status<br/>managed resources<br/>runtime validation"]
 
     SOURCE --> HUB --> PLACEMENT
     PLACEMENT --> SPO --> PROOF
