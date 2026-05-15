@@ -255,7 +255,7 @@ policies/base/policy-prevent-copy-fail-cve-ds.yaml
 
 Purpose:
 
-Deploy the Red Hat BPF LSM DaemonSet mitigation for CVE-2026-31431.
+Deploy the Red Hat BPF LSM DaemonSet mitigation for [CVE-2026-31431](https://access.redhat.com/security/cve/cve-2026-31431).
 
 Creates:
 
